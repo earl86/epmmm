@@ -1,5 +1,5 @@
-# epmmm
-epmmm for mysql and mariadb performance monitor.
+# epmmm for zabbix 3.x
+epmmm for mysql and mariadb performance monitor. 
 
 
 The wrapper for zabbix python script.
