@@ -23,4 +23,8 @@ Remember to change the USERNAME PASSWORD ZABBIXSERVER for your's.
 Authors: earl86
 
 using:
+/etc/zabbix/zabbix_agentd.d/userparameter_epmmm_mysql.conf
 
+/etc/zabbix/scripts/epmmm_get_mysql_stats_wrapper.sh
+
+/etc/zabbix/scripts/epmmm_get_mysql_stats.py
