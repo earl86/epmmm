@@ -14,7 +14,7 @@ Test the script using: zabbix_get -s 192.168.0.1 -p 10050 -k "epmmm.mysql.check[
 The script need zabbix_sender and Python Running Environment
 
 
-The default monitor mysql port is 3306, if need to monitor other port, you need to add the Macros:{$MYSQL_PORT}=xxxx on the monitor Host
+The default monitor mysql port is 3306, if need to monitor other port, you need to add the Inherited and host macros:{$MYSQL_PORT}=xxxx on the monitor Host
 
 
 Remember to change the USERNAME PASSWORD ZABBIXSERVER for your's.
