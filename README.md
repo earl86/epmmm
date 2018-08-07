@@ -8,7 +8,7 @@ The wrapper for zabbix python script.
 It runs the script every 30 seconds. and parses the cache file on each following run.
 
 
-Test the script using: zabbix_get -s 10.148.0.3 -p 10050 -k "epmmm.mysql.check[zabbixmysql,10.148.0.3,3306,check]"
+Test the script using: zabbix_get -s 192.168.0.1 -p 10050 -k "epmmm.mysql.check[zabbixmysql,192.168.0.1,3306,check]"
 
 
 The script need zabbix_sender and Python Running Environment
