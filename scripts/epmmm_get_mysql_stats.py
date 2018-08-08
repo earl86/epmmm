@@ -586,7 +586,7 @@ def get_resaultdic():
 def writetofile(resaultdic):
     f1 = open('/tmp/'+SERVICEHOST+'-'+str(SERVICEPORT)+'-epmmm-mysql_zabbix_stats.txt', 'w')
     for key in resaultdic.keys():
-        f1.writelines( SERVICEHOSTNAME+' epmmm.mysql.'+key +' '+ str(resaultdic[key])+'\n')
+        f1.writelines( SERVICEHOSTNAME+' epmmm.mysql.'+key +' '+ str(resaultdic[key] if resaultdic[key]!='' else "' '")+'\n')
     
  
 def main():
