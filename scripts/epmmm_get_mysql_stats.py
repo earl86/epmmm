@@ -305,7 +305,7 @@ def get_resaultdic():
         if ( (GlobalStatus['Key_read_requests'] + GlobalStatus['Key_reads']) == 0 ):
             GlobalStatus['Key_buffer_hit_rate'] = 0.0
         else:
-            GlobalStatus['Key_buffer_hit_rate'] = round(GlobalStatus['Key_read_requests'] / (GlobalStatus['Key_read_requests'] + GlobalStatus['Key_reads']) * 100.0, 2)
+            GlobalStatus['Key_buffer_hit_rate'] = round(GlobalStatus['Key_read_requests'] * 100.00 / (GlobalStatus['Key_read_requests'] + GlobalStatus['Key_reads']), 2)
         
         if ( len(re.findall('([0-9]{1,2}).([0-9]{1,2}).([0-9]{1,2})', GlobalVariables['version']))>0):
             march=re.findall('([0-9]{1,2}).([0-9]{1,2}).([0-9]{1,2})', GlobalVariables['version'])
@@ -550,7 +550,7 @@ def get_resaultdic():
             GlobalStatus['Innodb_buffer_pool_hit_ratio'] = 0.0
         else:
             #Not good because it is average over all time!
-            GlobalStatus['Innodb_buffer_pool_hit_ratio'] = round(GlobalStatus['Innodb_buffer_pool_read_requests'] / (GlobalStatus['Innodb_buffer_pool_read_requests'] + GlobalStatus['Innodb_buffer_pool_reads']) * 100.0, 2)
+            GlobalStatus['Innodb_buffer_pool_hit_ratio'] = round(GlobalStatus['Innodb_buffer_pool_read_requests'] * 100.00 / (GlobalStatus['Innodb_buffer_pool_read_requests'] + GlobalStatus['Innodb_buffer_pool_reads']), 2)
             
         GlobalStatus['Innodb_buffer_pool_max_dirty_pages'] = math.floor(GlobalStatus['Innodb_buffer_pool_pages_total'] * GlobalVariables['innodb_max_dirty_pages_pct'] / 100)
         GlobalStatus['Innodb_buffer_pool_max_dirty_pages_b'] = GlobalVariables['innodb_page_size'] * GlobalStatus['Innodb_buffer_pool_max_dirty_pages']
@@ -597,4 +597,5 @@ def main():
     
 if __name__=='__main__':
     main()   
+
 
