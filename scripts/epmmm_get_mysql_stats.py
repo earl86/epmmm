@@ -571,9 +571,9 @@ def get_resaultdic():
     resaults=get_mysql_status(SERVICEHOST,SERVICEPORT,'SELECT SUM(trx_rows_locked) AS rows_locked, SUM(trx_rows_modified) AS rows_modified, SUM(trx_lock_memory_bytes) AS lock_memory FROM information_schema.INNODB_TRX;')
     if (resaults is not None):
         for resault in resaults:
-            InnodbStatus['Innodb_rows_locked']   = int(resault[0]) if resault[0]=='NULL' else  0
-            InnodbStatus['Innodb_rows_modified'] = int(resault[1]) if resault[1]=='NULL' else  0
-            InnodbStatus['Innodb_trx_lock_memory'] = int(resault[2]) if resault[2]=='NULL' else  0
+            InnodbStatus['Innodb_rows_locked']   = int(resault[0]) if resault[0] is not None else  0
+            InnodbStatus['Innodb_rows_modified'] = int(resault[1]) if resault[1] is not None else  0
+            InnodbStatus['Innodb_trx_lock_memory'] = int(resault[2]) if resault[2] is not None else  0
 
     resaults=get_mysql_status(SERVICEHOST,SERVICEPORT,'SELECT LOWER(REPLACE(trx_state, " ", "_")) AS state, count(*) AS cnt from information_schema.INNODB_TRX GROUP BY state ORDER BY state;')
     if (resaults is not None):
