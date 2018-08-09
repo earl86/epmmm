@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>3.4</version>
-    <date>2018-08-07T05:12:23Z</date>
+    <date>2018-08-09T06:04:56Z</date>
     <groups>
         <group>
             <name>Template EPMMM MySQL</name>
@@ -10270,7 +10270,7 @@
     </templates>
     <triggers>
         <trigger>
-            <expression>{Template_epmmm.MySQL.master:epmmm.mysql.Binlog_do_filter.strlen(#1)}&gt;0</expression>
+            <expression>{Template_epmmm.MySQL.master:epmmm.mysql.Binlog_do_filter.last()}&lt;&gt;0</expression>
             <recovery_mode>0</recovery_mode>
             <recovery_expression/>
             <name>Binary Log Do Filter is enabled</name>
@@ -10286,7 +10286,7 @@
             <tags/>
         </trigger>
         <trigger>
-            <expression>{Template_epmmm.MySQL.master:epmmm.mysql.Binlog_ignore_filter.strlen(#1)}&gt;0</expression>
+            <expression>{Template_epmmm.MySQL.master:epmmm.mysql.Binlog_ignore_filter.last()}&lt;&gt;0</expression>
             <recovery_mode>0</recovery_mode>
             <recovery_expression/>
             <name>Binary Log Ignore Filter is enabled</name>
@@ -10334,7 +10334,7 @@
             <tags/>
         </trigger>
         <trigger>
-            <expression>{Template_epmmm.MySQL.master:epmmm.mysql.binlog_stmt_cache_size.last(0)}&lt;1048576 and {Template_epmmm.MySQL.master:epmmm.mysql.binlog_stmt_cache_size.last(0)}&gt;0</expression>
+            <expression>{Template_epmmm.MySQL.master:epmmm.mysql.binlog_stmt_cache_size.last(0)}&lt;32768 and {Template_epmmm.MySQL.master:epmmm.mysql.binlog_stmt_cache_size.last(0)}&gt;0</expression>
             <recovery_mode>0</recovery_mode>
             <recovery_expression/>
             <name>Binlog Statement Cache size too small</name>
@@ -10931,10 +10931,10 @@ Do not check from 04:00 - 12:00</description>
             <tags/>
         </trigger>
         <trigger>
-            <expression>{Template_epmmm.MySQL.master:epmmm.mysql.sync_binlog.last(0)}=1</expression>
+            <expression>{Template_epmmm.MySQL.master:epmmm.mysql.sync_binlog.last(0)}&lt;&gt;1</expression>
             <recovery_mode>0</recovery_mode>
             <recovery_expression/>
-            <name>Sync Binlog is enabled</name>
+            <name>Sync Binlog is not enabled</name>
             <correlation_mode>0</correlation_mode>
             <correlation_tag/>
             <url/>

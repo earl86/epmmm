@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>2.0</version>
-    <date>2018-08-07T08:06:20Z</date>
+    <date>2018-08-09T06:00:47Z</date>
     <groups>
         <group>
             <name>Template EPMMM MySQL</name>
@@ -10285,7 +10285,7 @@
     </templates>
     <triggers>
         <trigger>
-            <expression>{Template epmmm MySQL Master:epmmm.mysql.Binlog_do_filter.strlen(#1)}&gt;0</expression>
+            <expression>{Template epmmm MySQL Master:epmmm.mysql.Binlog_do_filter.last()}&lt;&gt;0</expression>
             <name>Binary Log Do Filter is enabled</name>
             <url/>
             <status>0</status>
@@ -10295,7 +10295,7 @@
             <dependencies/>
         </trigger>
         <trigger>
-            <expression>{Template epmmm MySQL Master:epmmm.mysql.Binlog_ignore_filter.strlen(#1)}&gt;0</expression>
+            <expression>{Template epmmm MySQL Master:epmmm.mysql.Binlog_ignore_filter.last()}&lt;&gt;0</expression>
             <name>Binary Log Ignore Filter is enabled</name>
             <url/>
             <status>0</status>
@@ -10325,7 +10325,7 @@
             <dependencies/>
         </trigger>
         <trigger>
-            <expression>{Template epmmm MySQL Master:epmmm.mysql.binlog_stmt_cache_size.last(0)}&lt;1048576 and {Template epmmm MySQL Master:epmmm.mysql.binlog_stmt_cache_size.last(0)}&gt;0</expression>
+            <expression>{Template epmmm MySQL Master:epmmm.mysql.binlog_stmt_cache_size.last(0)}&lt;32768 and {Template epmmm MySQL Master:epmmm.mysql.binlog_stmt_cache_size.last(0)}&gt;0</expression>
             <name>Binlog Statement Cache size too small</name>
             <url/>
             <status>0</status>
@@ -10680,10 +10680,10 @@ Do not check from 04:00 - 12:00</description>
             <dependencies/>
         </trigger>
         <trigger>
-            <expression>{Template epmmm MySQL Master:epmmm.mysql.sync_binlog.last(0)}=1</expression>
-            <name>Sync Binlog is enabled</name>
+            <expression>{Template epmmm MySQL Master:epmmm.mysql.sync_binlog.last(0)}&lt;&gt;1</expression>
+            <name>Sync Binlog is not enabled</name>
             <url/>
-            <status>0</status>
+            <status>1</status>
             <priority>2</priority>
             <description>Sync Binlog is enabled. This leads to higher data security but on the cost of write performance.</description>
             <type>0</type>
