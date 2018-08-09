@@ -1,4 +1,4 @@
-# epmmm for zabbix 3.x and 2.x
+# epmmm mysql and mariadb monitor for zabbix 3.x and 2.x
 epmmm for mysql and mariadb performance monitor. 
 
 
