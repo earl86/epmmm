@@ -29,6 +29,8 @@ using:
 
 install python and pip
 
+yum install python-devel gcc gcc-c++
+
 pip install MySQL-python
 
 pip install argparse
