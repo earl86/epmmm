@@ -1,4 +1,4 @@
-epmmm performance monitor for mysql and mariadb on zabbix 2.x and zabbix 3.x
+epmmm performance monitor mysql, mariadb, memcached and redis for zabbix 2.x and zabbix 3.x
 
 link：
 
