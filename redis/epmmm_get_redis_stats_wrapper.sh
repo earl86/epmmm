@@ -15,7 +15,7 @@ PASSWORD=xxxxxx
 
 DIR=`dirname $0`
 
-CMD="/usr/bin/python3 $DIR/epmmm_get_redis_stats.py -s $SERVICEHOSTNAME -p $SERVICEPORT -a $PASSWORD"
+CMD="/usr/bin/python3 $DIR/epmmm_get_redis_stats.py -n $SERVICEHOSTNAME -s $SERVICEHOSTIP -p $SERVICEPORT -a $PASSWORD"
 
 if [ "$ITEM" = "check" ]; then
     $CMD 2>&1 > /dev/null
