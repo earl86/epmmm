@@ -632,7 +632,7 @@ def main():
         packet = generate_packet(SERVICEHOSTNAME,resaultdic)
         #print(packet)
         send_to_zabbix(packet, zabbix_host, zabbix_port)
-    except Exception, e:
+    except Exception as e:
         logger.info('epmmm %s, %s!', SERVICEHOSTNAME, e)    
     
     
