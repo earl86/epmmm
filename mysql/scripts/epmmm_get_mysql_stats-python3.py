@@ -15,6 +15,7 @@ import math
 import subprocess
 from subprocess import Popen
 from subprocess import PIPE
+import logging
 import MySQLdb
 import argparse
 from pyzabbix.sender import ZabbixMetric, ZabbixSender
@@ -37,6 +38,13 @@ PASSWORD=args.password
 zabbix_host = '192.168.1.100'      # Zabbix Server IP,You need to modify it for your's.
 zabbix_port = 10051                # Zabbix Server Port,You need to modify it for your's.
 
+logging.basicConfig(level=logging.DEBUG,
+                    filename='/var/log/zabbix/epmmm-get-mysql-stats.log',
+                    datefmt='%Y/%m/%d %H:%M:%S',
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(lineno)d - %(module)s - %(message)s')
+
+logger = logging.getLogger(__name__)
+
 def send_to_zabbix(packet, zabbix_host, zabbix_port):
     server = ZabbixSender(zabbix_host,zabbix_port)
     server.send(packet)
@@ -55,7 +63,7 @@ def get_mysql_status(SERVICEHOSTNAME,SERVICEPORT,querysql):
     try:
         conn = MySQLdb.connect(host=SERVICEHOSTNAME, port=SERVICEPORT, user=USERNAME, passwd=PASSWORD,db='',charset="utf8")
     except Exception as e:
-        print(e)
+        logger.info('epmmm %s, %s!', SERVICEHOSTNAME, e)
         os._exit()
     try:
         cursor = conn.cursor()
@@ -63,7 +71,7 @@ def get_mysql_status(SERVICEHOSTNAME,SERVICEPORT,querysql):
         result = cursor.fetchall()
         return result
     except Exception as e:
-        print(e)
+        logger.info('epmmm %s, %s!', SERVICEHOSTNAME, e)
     cursor.close()
     conn.close()
 
@@ -71,7 +79,7 @@ def get_mysql_status_dic(SERVICEHOSTNAME,SERVICEPORT,querysql):
     try:
         conn = MySQLdb.connect(host=SERVICEHOSTNAME, port=SERVICEPORT, user=USERNAME, passwd=PASSWORD,db='',charset="utf8")
     except Exception as e:
-        print(e)
+        logger.info('epmmm %s, %s!', SERVICEHOSTNAME, e)
         os._exit()
     try:
         cursor = conn.cursor(MySQLdb.cursors.DictCursor)
@@ -79,7 +87,7 @@ def get_mysql_status_dic(SERVICEHOSTNAME,SERVICEPORT,querysql):
         result = cursor.fetchall()
         return result
     except Exception as e:
-        print(e)
+        logger.info('epmmm %s, %s!', SERVICEHOSTNAME, e)
     cursor.close()
     conn.close()
 
@@ -619,11 +627,13 @@ def get_resaultdic():
 
  
 def main():
-    resaultdic=get_resaultdic()
-    packet = generate_packet(SERVICEHOSTNAME,resaultdic)
-    #print(packet)
-    send_to_zabbix(packet, zabbix_host, zabbix_port)
-    
+    try:
+        resaultdic=get_resaultdic()
+        packet = generate_packet(SERVICEHOSTNAME,resaultdic)
+        #print(packet)
+        send_to_zabbix(packet, zabbix_host, zabbix_port)
+    except Exception, e:
+        logger.info('epmmm %s, %s!', SERVICEHOSTNAME, e)    
     
     
 if __name__=='__main__':
