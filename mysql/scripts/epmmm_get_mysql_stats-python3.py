@@ -27,6 +27,8 @@ parser.add_argument("--serviceip", action="store", dest='serviceip', help="input
 parser.add_argument("--serviceport", action="store", dest='serviceport', type=int, help="input the database service port", required=True)
 parser.add_argument("--username", action="store", dest='username', help="input the monitor user name for database", required=True)
 parser.add_argument("--password", action="store", dest='password', help="input the user's password", required=True)
+parser.add_argument("--zabbixserver", action="store", dest='zabbixserver', help="input the Zabbix Server IP", required=True)
+parser.add_argument("--zabbixserver_port", action="store", dest='zabbixserver_port', type=int, help="input the Zabbix Server Port", required=True)
 args = parser.parse_args()
 
 SERVICEHOSTNAME=args.servicehostname
@@ -34,6 +36,8 @@ SERVICEIP=args.serviceip
 SERVICEPORT=args.serviceport
 USERNAME=args.username
 PASSWORD=args.password
+ZABBIX_SERVER=args.zabbixserver
+ZABBIX_SERVER_PORT=args.zabbixserver_port
 
 zabbix_host = '192.168.1.100'      # Zabbix Server IP,You need to modify it for your's.
 zabbix_port = 10051                # Zabbix Server Port,You need to modify it for your's.
@@ -45,8 +49,8 @@ logging.basicConfig(level=logging.DEBUG,
 
 logger = logging.getLogger(__name__)
 
-def send_to_zabbix(packet, zabbix_host, zabbix_port):
-    server = ZabbixSender(zabbix_host,zabbix_port)
+def send_to_zabbix(packet):
+    server = ZabbixSender(ZABBIX_SERVER,ZABBIX_SERVER_PORT)
     server.send(packet)
 
 
@@ -631,7 +635,7 @@ def main():
         resaultdic=get_resaultdic()
         packet = generate_packet(SERVICEHOSTNAME,resaultdic)
         #print(packet)
-        send_to_zabbix(packet, zabbix_host, zabbix_port)
+        send_to_zabbix(packet)
     except Exception as e:
         logger.info('epmmm %s, %s!', SERVICEHOSTNAME, e)    
     
