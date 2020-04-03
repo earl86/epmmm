@@ -50,15 +50,11 @@ def send_to_zabbix(packet):
     server = ZabbixSender(ZABBIX_SERVER,ZABBIX_SERVER_PORT)
     server.send(packet)
 
-
-
 def generate_packet(SERVICEHOSTNAME,resaultdic):
     packet = []
     for key in resaultdic.keys():
-        packet.append(ZabbixMetric(SERVICEHOSTNAME, "epmmm.mysql.%s" % key,str(resaultdic[key] if resaultdic[key]!='' else 0)))
-    
+        packet.append(ZabbixMetric(SERVICEHOSTNAME, "epmmm.mysql.%s" % key,str(resaultdic[key] if resaultdic[key]!='' else 0)))   
     return packet
-
 
 def get_mysql_status(SERVICEHOSTNAME,SERVICEPORT,querysql):
     try:
@@ -97,8 +93,7 @@ def is_number(s):
         float(s)
         return True
     except ValueError:
-        pass
- 
+        pass 
     try:
         import unicodedata
         unicodedata.numeric(s)
@@ -142,8 +137,7 @@ def get_resaultdic():
             MasterStatus['Binlog_number'] = to_int(resault['File'].split('.')[1])
             MasterStatus['Binlog_do_filter'] = resault['Binlog_Do_DB']
             MasterStatus['Binlog_ignore_filter'] = resault['Binlog_Ignore_DB']
-        
-
+    
     resaults=get_mysql_status(SERVICEHOSTNAME,SERVICEPORT,'show binary logs;')
     MasterStatus['Binlog_count']=0
     MasterStatus['Binlog_total_size']=0
@@ -151,7 +145,6 @@ def get_resaultdic():
         for resault in resaults:
             MasterStatus['Binlog_count'] += 1
             MasterStatus['Binlog_total_size'] += resault[1]
-
 
     resaults=get_mysql_status(SERVICEHOSTNAME,SERVICEPORT,'show slave hosts;')
     MasterStatus['Slave_count']=0
@@ -181,7 +174,6 @@ def get_resaultdic():
             SlaveStatus['slave_lag_binlog']=SlaveStatus['Master_Log_File']-SlaveStatus['Relay_Master_Log_File']
             SlaveStatus['Relay_Log_Pos']=resault['Relay_Log_Pos']
             SlaveStatus['Relay_Log_Pos']=resault['Relay_Log_Pos']
-
         
     resaults=get_mysql_status(SERVICEHOSTNAME,SERVICEPORT,'show global status;')
     if (resaults is not None):
@@ -196,8 +188,6 @@ def get_resaultdic():
         if( not 'Key_blocks_warm' in GlobalStatus):
             GlobalStatus['Key_blocks_warm']=0
     
-
-
     resaults=get_mysql_status(SERVICEHOSTNAME,SERVICEPORT,'show global variables;')
     if (resaults is not None):
         for resault in resaults:
@@ -329,8 +319,7 @@ def get_resaultdic():
                 GlobalVariables['sync_relay_log_info']=resault[1]          
             elif(resault[0]=='slave_skip_errors'):
                 GlobalVariables['slave_skip_errors']=resault[1]                                     
-        
-        
+         
         GlobalVariables['key_buffer_blocks']=GlobalVariables['key_buffer_size']/GlobalVariables['key_cache_block_size']
         GlobalStatus['Key_blocks_used_now']=GlobalVariables['key_buffer_blocks']-GlobalStatus['Key_blocks_unused']
         GlobalStatus['Key_blocks_not_flushed_b'] = GlobalVariables['key_cache_block_size'] * GlobalStatus['Key_blocks_not_flushed'];
@@ -361,8 +350,6 @@ def get_resaultdic():
             GlobalStatus['Qcache_block_per_query'] = 0
         else:
             GlobalStatus['Qcache_block_per_query'] = int(GlobalStatus['Qcache_used_blocks'] / GlobalStatus['Qcache_queries_in_cache'])
-                            
-
     
     resaults=get_mysql_status(SERVICEHOSTNAME,SERVICEPORT,'show engine innodb status;')
     if (resaults is not None):
