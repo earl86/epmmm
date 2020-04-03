@@ -9,6 +9,13 @@
 
 USERNAME=zabbix
 PASSWORD=zabbix
+ZABBIXSERVER=192.168.1.2
+ZABBIXSERVER_PORT=10051
+
+HOSTNAME=`hostname`
+if [ "${HOSTNAME:0:4}" = "xxx" ]; then
+   ZABBIXSERVER=192.168.1.3
+fi
 
 
 SERVICEHOSTNAME=$1
@@ -18,7 +25,7 @@ ITEM=$4
 
 DIR=`dirname $0`
 
-CMD="/usr/bin/python3 $DIR/epmmm_get_mysql_stats-python3.py --servicehostname $SERVICEHOSTNAME --serviceip $SERVICEIP --serviceport $SERVICEPORT --username $USERNAME --password $PASSWORD"
+CMD="/usr/bin/python3 $DIR/epmmm_get_mysql_stats-python3.py --servicehostname $SERVICEHOSTNAME --serviceip $SERVICEIP --serviceport $SERVICEPORT --username $USERNAME --password $PASSWORD --zabbixserver $ZABBIXSERVER --zabbixserver_port $ZABBIXSERVER_PORT"
 
 if [ "$ITEM" = "mysqld_alive" ]; then
     RES=`HOME=~zabbix mysql -h $SERVICEIP -P $SERVICEPORT -u$USERNAME -p$PASSWORD -N -e 'select 1 from dual;' 2>/dev/null`
