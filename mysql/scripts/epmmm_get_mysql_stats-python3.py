@@ -3,7 +3,7 @@
 #encoding:utf8
 #The user to monitor Your MySQL Service.
 #GRANT PROCESS, REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO 'zabbix'@'%' IDENTIFIED BY 'zabbix';
-#test use: python3 epmmm_get_mysql_stats-python3.py --servicehostname your_mysqlservice_hostname --serviceip 192.168.1.200 --serviceport 3306 --username zabbix --password zabbix
+#test use: python3 epmmm_get_mysql_stats-python3.py --servicehostname your_mysqlservice_hostname --serviceip 192.168.1.200 --serviceport 3306 --username zabbix --password zabbix --zabbixserver 192.168.1.2 --zabbixserver_port 10051
 #important: your_mysqlservice_hostname must be the same as in your zabbix hostname config.
 #pip3 install mysqlclient
 #pip3 install argparse
