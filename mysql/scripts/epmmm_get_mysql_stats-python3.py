@@ -39,9 +39,6 @@ PASSWORD=args.password
 ZABBIX_SERVER=args.zabbixserver
 ZABBIX_SERVER_PORT=args.zabbixserver_port
 
-zabbix_host = '192.168.1.100'      # Zabbix Server IP,You need to modify it for your's.
-zabbix_port = 10051                # Zabbix Server Port,You need to modify it for your's.
-
 logging.basicConfig(level=logging.DEBUG,
                     filename='/var/log/zabbix/epmmm-get-mysql-stats.log',
                     datefmt='%Y/%m/%d %H:%M:%S',
