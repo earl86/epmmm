@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>2.0</version>
-    <date>2018-08-09T06:00:47Z</date>
+    <date>2020-04-08T10:07:47Z</date>
     <groups>
         <group>
             <name>Template EPMMM MySQL</name>
@@ -10143,13 +10143,13 @@
             </applications>
             <items>
                 <item>
-                    <name>epmmm Agent is alive</name>
+                    <name>epmmm MySQL Agent is alive</name>
                     <type>0</type>
                     <snmp_community/>
                     <multiplier>0</multiplier>
                     <snmp_oid/>
                     <key>epmmm.mysql.check[{HOST.NAME},{HOST.IP},{$MYSQL_PORT},check]</key>
-                    <delay>10</delay>
+                    <delay>5</delay>
                     <history>30</history>
                     <trends>365</trends>
                     <status>0</status>
@@ -10186,13 +10186,13 @@
                     <logtimefmt/>
                 </item>
                 <item>
-                    <name>epmmm Agent is OK</name>
+                    <name>epmmm MySQL Agent is OK</name>
                     <type>2</type>
                     <snmp_community/>
                     <multiplier>0</multiplier>
                     <snmp_oid/>
                     <key>epmmm.mysql.agent_OK</key>
-                    <delay>60</delay>
+                    <delay>0</delay>
                     <history>30</history>
                     <trends>365</trends>
                     <status>0</status>
@@ -10375,22 +10375,12 @@
             <dependencies/>
         </trigger>
         <trigger>
-            <expression>{Template epmmm MySQL trapper:epmmm.mysql.agent_OK.last(0)}=0 and {Template epmmm MySQL trapper:epmmm.mysql.agent_OK.prev(0)}=1</expression>
+            <expression>{Template epmmm MySQL trapper:epmmm.mysql.agent_OK.nodata(30)}=1</expression>
             <name>epmmm MaaS Agent is not sending data</name>
             <url/>
             <status>0</status>
             <priority>4</priority>
             <description>epmmm MaaS Agent did not send any data during the last 5 minutes. This can be due to troubles with the network or because it was not running. Please check in the log file for more information.</description>
-            <type>0</type>
-            <dependencies/>
-        </trigger>
-        <trigger>
-            <expression>{Template epmmm MySQL trapper:epmmm.mysql.agent_OK.last(0)}=1 and {Template epmmm MySQL trapper:epmmm.mysql.agent_OK.prev(0)}=0</expression>
-            <name>epmmm MaaS Agent is sending data again</name>
-            <url/>
-            <status>0</status>
-            <priority>1</priority>
-            <description>epmmm MaaS Agent is sending data again after a gap in the past.</description>
             <type>0</type>
             <dependencies/>
         </trigger>
@@ -10488,22 +10478,22 @@ InnoDB Buffer Pool Instances you can set equal to the number of cores of your ma
             <dependencies/>
         </trigger>
         <trigger>
-            <expression>{Template epmmm MySQL InnoDB:epmmm.mysql.Innodb_os_log_written.last(1h)}&gt;{Template epmmm MySQL InnoDB:epmmm.mysql.innodb_log_file_size.last(0)}*{Template epmmm MySQL InnoDB:epmmm.mysql.innodb_log_files_in_group.last(0)}</expression>
-            <name>InnoDB Log File size is too small</name>
-            <url/>
-            <status>0</status>
-            <priority>2</priority>
-            <description>Log File Size is possibly too small for the current traffic.</description>
-            <type>0</type>
-            <dependencies/>
-        </trigger>
-        <trigger>
             <expression>{Template epmmm MySQL InnoDB:epmmm.mysql.innodb_log_file_size.last(0)}&lt;16777216</expression>
             <name>InnoDB Log File size is too small</name>
             <url>http://mysql-forum.ch/showthread.php?tid=6755</url>
             <status>0</status>
             <priority>2</priority>
             <description>The InnoDB Log File size is possibly too small. Choosing a small InnoDB Log File size can have significant performance impacts.</description>
+            <type>0</type>
+            <dependencies/>
+        </trigger>
+        <trigger>
+            <expression>{Template epmmm MySQL InnoDB:epmmm.mysql.Innodb_os_log_written.last(1h)}&gt;{Template epmmm MySQL InnoDB:epmmm.mysql.innodb_log_file_size.last(0)}*{Template epmmm MySQL InnoDB:epmmm.mysql.innodb_log_files_in_group.last(0)}</expression>
+            <name>InnoDB Log File size is too small</name>
+            <url/>
+            <status>0</status>
+            <priority>2</priority>
+            <description>Log File Size is possibly too small for the current traffic.</description>
             <type>0</type>
             <dependencies/>
         </trigger>
@@ -10639,6 +10629,16 @@ This can break your replication.</description>
             <dependencies/>
         </trigger>
         <trigger>
+            <expression>{Template epmmm MySQL Slave:epmmm.mysql.Seconds_Behind_Master.last(0)}&gt;30</expression>
+            <name>Slave lagging behind Master</name>
+            <url/>
+            <status>0</status>
+            <priority>2</priority>
+            <description>Slave is lagging behind Master. Please check if Slave threads are running and if there are some performance issues!</description>
+            <type>0</type>
+            <dependencies/>
+        </trigger>
+        <trigger>
             <expression>{Template epmmm MySQL Slave:epmmm.mysql.Seconds_Behind_Master.last(0)}&gt;30 and ({Template epmmm MySQL Slave:epmmm.mysql.Seconds_Behind_Master.time(0)}&lt;040000 or {Template epmmm MySQL Slave:epmmm.mysql.Seconds_Behind_Master.time(0)}&gt;120000)</expression>
             <name>Slave lagging behind Master</name>
             <url/>
@@ -10646,16 +10646,6 @@ This can break your replication.</description>
             <priority>2</priority>
             <description>Slave is lagging behind Master. Please check if Slave threads are running and if there are some performance issues! But only while we do not backup...&#13;
 Do not check from 04:00 - 12:00</description>
-            <type>0</type>
-            <dependencies/>
-        </trigger>
-        <trigger>
-            <expression>{Template epmmm MySQL Slave:epmmm.mysql.Seconds_Behind_Master.last(0)}&gt;30</expression>
-            <name>Slave lagging behind Master</name>
-            <url/>
-            <status>0</status>
-            <priority>2</priority>
-            <description>Slave is lagging behind Master. Please check if Slave threads are running and if there are some performance issues!</description>
             <type>0</type>
             <dependencies/>
         </trigger>
@@ -12457,7 +12447,7 @@ A typical is 256k for thread_stack_size.</description>
             <graph_items>
                 <graph_item>
                     <sortorder>0</sortorder>
-                    <drawtype>1</drawtype>
+                    <drawtype>0</drawtype>
                     <color>ff7f00</color>
                     <yaxisside>0</yaxisside>
                     <calc_fnc>2</calc_fnc>
@@ -12469,7 +12459,7 @@ A typical is 256k for thread_stack_size.</description>
                 </graph_item>
                 <graph_item>
                     <sortorder>1</sortorder>
-                    <drawtype>1</drawtype>
+                    <drawtype>0</drawtype>
                     <color>fdbf6f</color>
                     <yaxisside>0</yaxisside>
                     <calc_fnc>2</calc_fnc>
@@ -12481,7 +12471,7 @@ A typical is 256k for thread_stack_size.</description>
                 </graph_item>
                 <graph_item>
                     <sortorder>2</sortorder>
-                    <drawtype>1</drawtype>
+                    <drawtype>0</drawtype>
                     <color>e31a1c</color>
                     <yaxisside>0</yaxisside>
                     <calc_fnc>2</calc_fnc>
@@ -12493,7 +12483,7 @@ A typical is 256k for thread_stack_size.</description>
                 </graph_item>
                 <graph_item>
                     <sortorder>3</sortorder>
-                    <drawtype>1</drawtype>
+                    <drawtype>0</drawtype>
                     <color>fb9a99</color>
                     <yaxisside>0</yaxisside>
                     <calc_fnc>2</calc_fnc>
@@ -12505,7 +12495,7 @@ A typical is 256k for thread_stack_size.</description>
                 </graph_item>
                 <graph_item>
                     <sortorder>4</sortorder>
-                    <drawtype>1</drawtype>
+                    <drawtype>0</drawtype>
                     <color>33a02c</color>
                     <yaxisside>0</yaxisside>
                     <calc_fnc>2</calc_fnc>
@@ -12517,7 +12507,7 @@ A typical is 256k for thread_stack_size.</description>
                 </graph_item>
                 <graph_item>
                     <sortorder>5</sortorder>
-                    <drawtype>1</drawtype>
+                    <drawtype>0</drawtype>
                     <color>b2df8a</color>
                     <yaxisside>0</yaxisside>
                     <calc_fnc>2</calc_fnc>
@@ -12529,7 +12519,7 @@ A typical is 256k for thread_stack_size.</description>
                 </graph_item>
                 <graph_item>
                     <sortorder>6</sortorder>
-                    <drawtype>1</drawtype>
+                    <drawtype>0</drawtype>
                     <color>1f77b4</color>
                     <yaxisside>0</yaxisside>
                     <calc_fnc>2</calc_fnc>
@@ -12541,7 +12531,7 @@ A typical is 256k for thread_stack_size.</description>
                 </graph_item>
                 <graph_item>
                     <sortorder>7</sortorder>
-                    <drawtype>1</drawtype>
+                    <drawtype>0</drawtype>
                     <color>a6cee3</color>
                     <yaxisside>0</yaxisside>
                     <calc_fnc>2</calc_fnc>
@@ -12553,7 +12543,7 @@ A typical is 256k for thread_stack_size.</description>
                 </graph_item>
                 <graph_item>
                     <sortorder>8</sortorder>
-                    <drawtype>1</drawtype>
+                    <drawtype>0</drawtype>
                     <color>cab2d6</color>
                     <yaxisside>0</yaxisside>
                     <calc_fnc>2</calc_fnc>
