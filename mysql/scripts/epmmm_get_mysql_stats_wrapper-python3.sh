@@ -45,6 +45,10 @@ elif [ "$ITEM" = "slave_running" ]; then
     fi
     exit
 elif [ "$ITEM" = "check" ]; then
-    echo 1
-    $CMD 2>&1 > /dev/null
+    $CMD
+    if [ $? = "0" ]; then
+    	echo 1
+    else
+    	echo 0
+    fi
 fi
