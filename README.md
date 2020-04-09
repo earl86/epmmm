@@ -12,7 +12,7 @@ Test the script using:
 
 zabbix_get -s 192.168.0.1 -p 10050 -k "epmmm.mysql.check[zabbixmysql,192.168.0.1,3306,check]"
 
-python epmmm_get_mysql_stats.py --servicehostname SERVICEHOSTNAME --servicehost SERVICEHOST --serviceport SERVICEPORT --username USERNAME --password PASSWORD
+python epmmm_get_mysql_stats.py --servicehostname $SERVICEHOSTNAME --serviceip $SERVICEIP --serviceport $SERVICEPORT --username $USERNAME --password $PASSWORD --zabbixserver $ZABBIXSERVER --zabbixserver_port $ZABBIXSERVER_PORT
 
 The script need zabbix_sender and Python Running Environment
 
@@ -22,7 +22,7 @@ Remember to change the USERNAME PASSWORD ZABBIXSERVER for your's.
 
 Authors: earl86
 
-info:the scripts only tested on python 2.6 and python 2.7. It not tested on python 3
+info:the scripts only tested on python 2.6 and python 2.7 and python 3
 
 
 using:
