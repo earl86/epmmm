@@ -58,7 +58,7 @@ def generate_packet(SERVICEHOSTNAME,resaultdic):
     return packet
 
 
-def get_mysql_status(SERVICEIP,SERVICEPORT,querysql):
+def get_mysql_status(querysql):
     try:
         conn = MySQLdb.connect(host=SERVICEIP, port=SERVICEPORT, user=USERNAME, passwd=PASSWORD,db='',charset="utf8")
     except Exception, e:
@@ -74,7 +74,7 @@ def get_mysql_status(SERVICEIP,SERVICEPORT,querysql):
     cursor.close()
     conn.close()
 
-def get_mysql_status_dic(SERVICEIP,SERVICEPORT,querysql):
+def get_mysql_status_dic(querysql):
     try:
         conn = MySQLdb.connect(host=SERVICEIP, port=SERVICEPORT, user=USERNAME, passwd=PASSWORD,db='',charset="utf8")
     except Exception, e:
@@ -132,7 +132,7 @@ def get_resaultdic():
     MysqlStatus={}
     
     MysqlStatus['agent_OK']=1
-    resaults=get_mysql_status_dic(SERVICEIP,SERVICEPORT,'show master status;')
+    resaults=get_mysql_status_dic('show master status;')
     if (resaults is not None):
         for resault in resaults:
             MasterStatus['Binlog_position'] = resault['Position']
@@ -142,7 +142,7 @@ def get_resaultdic():
             MasterStatus['Binlog_ignore_filter'] = resault['Binlog_Ignore_DB']
         
 
-    resaults=get_mysql_status(SERVICEIP,SERVICEPORT,'show binary logs;')
+    resaults=get_mysql_status('show binary logs;')
     MasterStatus['Binlog_count']=0
     MasterStatus['Binlog_total_size']=0
     if (resaults is not None):
@@ -151,13 +151,13 @@ def get_resaultdic():
             MasterStatus['Binlog_total_size'] += resault[1]
 
 
-    resaults=get_mysql_status(SERVICEIP,SERVICEPORT,'show slave hosts;')
+    resaults=get_mysql_status('show slave hosts;')
     MasterStatus['Slave_count']=0
     if (resaults is not None):
         for resault in resaults:
             MasterStatus['Slave_count'] += 1
  
-    resaults=get_mysql_status_dic(SERVICEIP,SERVICEPORT,'show slave status;')
+    resaults=get_mysql_status_dic('show slave status;')
     # Scale slave_running and slave_stopped relative to the slave lag.
     if (resaults is not None):
         for resault in resaults:
@@ -181,7 +181,7 @@ def get_resaultdic():
             SlaveStatus['Relay_Log_Pos']=resault['Relay_Log_Pos']
 
         
-    resaults=get_mysql_status(SERVICEIP,SERVICEPORT,'show global status;')
+    resaults=get_mysql_status('show global status;')
     if (resaults is not None):
         for resault in resaults:
             if ( is_number(resault[1])):
@@ -196,7 +196,7 @@ def get_resaultdic():
     
 
 
-    resaults=get_mysql_status(SERVICEIP,SERVICEPORT,'show global variables;')
+    resaults=get_mysql_status('show global variables;')
     if (resaults is not None):
         for resault in resaults:
             if(resault[0]=='max_connections'):
@@ -362,7 +362,7 @@ def get_resaultdic():
                             
 
     
-    resaults=get_mysql_status(SERVICEIP,SERVICEPORT,'show engine innodb status;')
+    resaults=get_mysql_status('show engine innodb status;')
     if (resaults is not None):
         lines=resaults[0][2].split("\n")
         for line in lines:
@@ -597,20 +597,20 @@ def get_resaultdic():
         if ( GlobalVariables['innodb_log_file_size'] == '0' ) :
             GlobalVariables['innodb_log_file_size']=0
 
-    resaults=get_mysql_status(SERVICEHOST,SERVICEPORT,'SELECT SUM(compress_time) AS compress_time, SUM(uncompress_time) AS uncompress_time FROM information_schema.INNODB_CMP;')
+    resaults=get_mysql_status('SELECT SUM(compress_time) AS compress_time, SUM(uncompress_time) AS uncompress_time FROM information_schema.INNODB_CMP;')
     if (resaults is not None):
         for resault in resaults:
             InnodbStatus['Innodb_compress_time']   = int(resault[0])
             InnodbStatus['Innodb_uncompress_time'] = int(resault[1])
 
-    resaults=get_mysql_status(SERVICEHOST,SERVICEPORT,'SELECT SUM(trx_rows_locked) AS rows_locked, SUM(trx_rows_modified) AS rows_modified, SUM(trx_lock_memory_bytes) AS lock_memory FROM information_schema.INNODB_TRX;')
+    resaults=get_mysql_status('SELECT SUM(trx_rows_locked) AS rows_locked, SUM(trx_rows_modified) AS rows_modified, SUM(trx_lock_memory_bytes) AS lock_memory FROM information_schema.INNODB_TRX;')
     if (resaults is not None):
         for resault in resaults:
             InnodbStatus['Innodb_rows_locked']   = int(resault[0]) if resault[0] is not None else  0
             InnodbStatus['Innodb_rows_modified'] = int(resault[1]) if resault[1] is not None else  0
             InnodbStatus['Innodb_trx_lock_memory'] = int(resault[2]) if resault[2] is not None else  0
 
-    resaults=get_mysql_status(SERVICEHOST,SERVICEPORT,'SELECT LOWER(REPLACE(trx_state, " ", "_")) AS state, count(*) AS cnt from information_schema.INNODB_TRX GROUP BY state ORDER BY state;')
+    resaults=get_mysql_status('SELECT LOWER(REPLACE(trx_state, " ", "_")) AS state, count(*) AS cnt from information_schema.INNODB_TRX GROUP BY state ORDER BY state;')
     if (resaults is not None):
         for resault in resaults:
             InnodbStatus['Innodb_trx_' + resault[0]] = resault[1]
@@ -624,7 +624,7 @@ def main():
         packet = generate_packet(SERVICEHOSTNAME,resaultdic)
         #print(packet)
         send_to_zabbix(packet)
-    except Exception as e:
+    except Exception, e:
         logger.info('epmmm %s, %s!', SERVICEHOSTNAME, e) 
     
 
