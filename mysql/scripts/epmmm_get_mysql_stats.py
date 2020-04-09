@@ -62,7 +62,7 @@ def get_mysql_status(querysql):
     try:
         conn = MySQLdb.connect(host=SERVICEIP, port=SERVICEPORT, user=USERNAME, passwd=PASSWORD,db='',charset="utf8")
     except Exception, e:
-        logger.info('epmmm %s, %s!', SERVICEHOSTNAME, e)
+        logger.info('epmmm %s, %s!' % (SERVICEHOSTNAME, e))
         os._exit()
     try:
         cursor = conn.cursor()
@@ -70,7 +70,7 @@ def get_mysql_status(querysql):
         result = cursor.fetchall()
         return result
     except Exception, e:
-        logger.info('epmmm %s, %s!', SERVICEHOSTNAME, e)
+        logger.info('epmmm %s, %s!' % (SERVICEHOSTNAME, e))
     cursor.close()
     conn.close()
 
@@ -78,7 +78,7 @@ def get_mysql_status_dic(querysql):
     try:
         conn = MySQLdb.connect(host=SERVICEIP, port=SERVICEPORT, user=USERNAME, passwd=PASSWORD,db='',charset="utf8")
     except Exception, e:
-        logger.info('epmmm %s, %s!', SERVICEHOSTNAME, e)
+        logger.info('epmmm %s, %s!' % (SERVICEHOSTNAME, e))
         os._exit()
     try:
         cursor = conn.cursor(MySQLdb.cursors.DictCursor)
@@ -86,7 +86,7 @@ def get_mysql_status_dic(querysql):
         result = cursor.fetchall()
         return result
     except Exception, e:
-        logger.info('epmmm %s, %s!', SERVICEHOSTNAME, e)
+        logger.info('epmmm %s, %s!' % (SERVICEHOSTNAME, e))
     cursor.close()
     conn.close()
 
@@ -625,7 +625,7 @@ def main():
         #print(packet)
         send_to_zabbix(packet)
     except Exception, e:
-        logger.info('epmmm %s, %s!', SERVICEHOSTNAME, e) 
+        logger.info('epmmm %s, %s!' % (SERVICEHOSTNAME, e)) 
     
 
 if __name__=='__main__':
