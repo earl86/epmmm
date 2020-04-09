@@ -1,33 +1,68 @@
+#!/usr/bin/python
 #coding=utf-8
 #encoding:utf8
+#The user to monitor Your MySQL Service.
+#GRANT PROCESS, REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO 'zabbix'@'%' IDENTIFIED BY 'zabbix';
+#test use: python epmmm_get_mysql_stats.py --servicehostname your_mysqlservice_hostname --serviceip 192.168.1.200 --serviceport 3306 --username zabbix --password zabbix --zabbixserver 192.168.1.2 --zabbixserver_port 10051
+#important: your_mysqlservice_hostname must be the same as in your zabbix hostname config.
+#pip install MySQL-python
+#pip install argparse
+#pip install py-zabbix
 
-import MySQLdb
 import os
 import re
 import math
+import subprocess
+from subprocess import Popen
+from subprocess import PIPE
+import logging
+import MySQLdb
 import argparse
+from pyzabbix.sender import ZabbixMetric, ZabbixSender
 
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--servicehostname", action="store", dest='servicehostname', help="input the database servcie hostname", required=True)
-parser.add_argument("--servicehost", action="store", dest='servicehost', help="input the database servcie host", required=True)
+parser.add_argument("--serviceip", action="store", dest='serviceip', help="input the database servcie host", required=True)
 parser.add_argument("--serviceport", action="store", dest='serviceport', type=int, help="input the database service port", required=True)
 parser.add_argument("--username", action="store", dest='username', help="input the monitor user name for database", required=True)
 parser.add_argument("--password", action="store", dest='password', help="input the user's password", required=True)
+parser.add_argument("--zabbixserver", action="store", dest='zabbixserver', help="input the Zabbix Server IP", required=True)
+parser.add_argument("--zabbixserver_port", action="store", dest='zabbixserver_port', type=int, help="input the Zabbix Server Port", required=True)
 args = parser.parse_args()
 
 SERVICEHOSTNAME=args.servicehostname
-SERVICEHOST=args.servicehost
+SERVICEIP=args.serviceip
 SERVICEPORT=args.serviceport
 USERNAME=args.username
 PASSWORD=args.password
+ZABBIX_SERVER=args.zabbixserver
+ZABBIX_SERVER_PORT=args.zabbixserver_port
 
 
-def get_mysql_status(SERVICEHOST,SERVICEPORT,querysql):
+logging.basicConfig(level=logging.DEBUG,
+                    filename='/var/log/zabbix/epmmm-get-mysql-stats.log',
+                    datefmt='%Y/%m/%d %H:%M:%S',
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(lineno)d - %(module)s - %(message)s')
+
+logger = logging.getLogger(__name__)
+
+def send_to_zabbix(packet):
+    server = ZabbixSender(ZABBIX_SERVER,ZABBIX_SERVER_PORT)
+    server.send(packet)
+
+def generate_packet(SERVICEHOSTNAME,resaultdic):
+    packet = []
+    for key in resaultdic.keys():
+        packet.append(ZabbixMetric(SERVICEHOSTNAME, "epmmm.mysql.%s" % key,str(resaultdic[key] if resaultdic[key]!='' else 0)))   
+    return packet
+
+
+def get_mysql_status(SERVICEIP,SERVICEPORT,querysql):
     try:
-        conn = MySQLdb.connect(host=SERVICEHOST, port=SERVICEPORT, user=USERNAME, passwd=PASSWORD,db='',charset="utf8")
+        conn = MySQLdb.connect(host=SERVICEIP, port=SERVICEPORT, user=USERNAME, passwd=PASSWORD,db='',charset="utf8")
     except Exception, e:
-        print e
+        logger.info('epmmm %s, %s!', SERVICEHOSTNAME, e)
         os._exit()
     try:
         cursor = conn.cursor()
@@ -35,15 +70,15 @@ def get_mysql_status(SERVICEHOST,SERVICEPORT,querysql):
         result = cursor.fetchall()
         return result
     except Exception, e:
-        print e
+        logger.info('epmmm %s, %s!', SERVICEHOSTNAME, e)
     cursor.close()
     conn.close()
 
-def get_mysql_status_dic(SERVICEHOST,SERVICEPORT,querysql):
+def get_mysql_status_dic(SERVICEIP,SERVICEPORT,querysql):
     try:
-        conn = MySQLdb.connect(host=SERVICEHOST, port=SERVICEPORT, user=USERNAME, passwd=PASSWORD,db='',charset="utf8")
+        conn = MySQLdb.connect(host=SERVICEIP, port=SERVICEPORT, user=USERNAME, passwd=PASSWORD,db='',charset="utf8")
     except Exception, e:
-        print e
+        logger.info('epmmm %s, %s!', SERVICEHOSTNAME, e)
         os._exit()
     try:
         cursor = conn.cursor(MySQLdb.cursors.DictCursor)
@@ -51,7 +86,7 @@ def get_mysql_status_dic(SERVICEHOST,SERVICEPORT,querysql):
         result = cursor.fetchall()
         return result
     except Exception, e:
-        print e
+        logger.info('epmmm %s, %s!', SERVICEHOSTNAME, e)
     cursor.close()
     conn.close()
 
@@ -97,7 +132,7 @@ def get_resaultdic():
     MysqlStatus={}
     
     MysqlStatus['agent_OK']=1
-    resaults=get_mysql_status_dic(SERVICEHOST,SERVICEPORT,'show master status;')
+    resaults=get_mysql_status_dic(SERVICEIP,SERVICEPORT,'show master status;')
     if (resaults is not None):
         for resault in resaults:
             MasterStatus['Binlog_position'] = resault['Position']
@@ -107,7 +142,7 @@ def get_resaultdic():
             MasterStatus['Binlog_ignore_filter'] = resault['Binlog_Ignore_DB']
         
 
-    resaults=get_mysql_status(SERVICEHOST,SERVICEPORT,'show binary logs;')
+    resaults=get_mysql_status(SERVICEIP,SERVICEPORT,'show binary logs;')
     MasterStatus['Binlog_count']=0
     MasterStatus['Binlog_total_size']=0
     if (resaults is not None):
@@ -116,13 +151,13 @@ def get_resaultdic():
             MasterStatus['Binlog_total_size'] += resault[1]
 
 
-    resaults=get_mysql_status(SERVICEHOST,SERVICEPORT,'show slave hosts;')
+    resaults=get_mysql_status(SERVICEIP,SERVICEPORT,'show slave hosts;')
     MasterStatus['Slave_count']=0
     if (resaults is not None):
         for resault in resaults:
             MasterStatus['Slave_count'] += 1
  
-    resaults=get_mysql_status_dic(SERVICEHOST,SERVICEPORT,'show slave status;')
+    resaults=get_mysql_status_dic(SERVICEIP,SERVICEPORT,'show slave status;')
     # Scale slave_running and slave_stopped relative to the slave lag.
     if (resaults is not None):
         for resault in resaults:
@@ -146,7 +181,7 @@ def get_resaultdic():
             SlaveStatus['Relay_Log_Pos']=resault['Relay_Log_Pos']
 
         
-    resaults=get_mysql_status(SERVICEHOST,SERVICEPORT,'show global status;')
+    resaults=get_mysql_status(SERVICEIP,SERVICEPORT,'show global status;')
     if (resaults is not None):
         for resault in resaults:
             if ( is_number(resault[1])):
@@ -161,7 +196,7 @@ def get_resaultdic():
     
 
 
-    resaults=get_mysql_status(SERVICEHOST,SERVICEPORT,'show global variables;')
+    resaults=get_mysql_status(SERVICEIP,SERVICEPORT,'show global variables;')
     if (resaults is not None):
         for resault in resaults:
             if(resault[0]=='max_connections'):
@@ -327,7 +362,7 @@ def get_resaultdic():
                             
 
     
-    resaults=get_mysql_status(SERVICEHOST,SERVICEPORT,'show engine innodb status;')
+    resaults=get_mysql_status(SERVICEIP,SERVICEPORT,'show engine innodb status;')
     if (resaults is not None):
         lines=resaults[0][2].split("\n")
         for line in lines:
@@ -583,18 +618,16 @@ def get_resaultdic():
     resaultdic=dict(MasterStatus.items()+SlaveStatus.items()+GlobalStatus.items()+GlobalVariables.items()+InnodbStatus.items()+MysqlStatus.items())
     return resaultdic
 
-def writetofile(resaultdic):
-    f1 = open('/tmp/'+SERVICEHOST+'-'+str(SERVICEPORT)+'-epmmm-mysql_zabbix_stats.txt', 'w')
-    for key in resaultdic.keys():
-        f1.writelines( SERVICEHOSTNAME+' epmmm.mysql.'+key +' '+ str(resaultdic[key] if resaultdic[key]!='' else 0)+'\n')
-    
- 
 def main():
-    resaultdic=get_resaultdic()
-    writetofile(resaultdic)
+    try:
+        resaultdic=get_resaultdic()
+        packet = generate_packet(SERVICEHOSTNAME,resaultdic)
+        #print(packet)
+        send_to_zabbix(packet)
+    except Exception as e:
+        logger.info('epmmm %s, %s!', SERVICEHOSTNAME, e) 
     
-    
-    
+
 if __name__=='__main__':
     main()   
 
