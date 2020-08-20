@@ -3,9 +3,9 @@
 #encoding:utf8
 #The user to monitor Your MySQL Service.
 #GRANT PROCESS, REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO 'zabbix'@'%' IDENTIFIED BY 'zabbix';
-#test use: python3 epmmm_get_mysql_stats-python3.py --servicehostname your_mysqlservice_hostname --serviceip 192.168.1.200 --serviceport 3306 --username zabbix --password zabbix --zabbixserver 192.168.1.2 --zabbixserver_port 10051
+#test use: python3 epmmm_get_mysql_stats-python3.py --servicehostname your_mysqlservice_hostname --serviceip 192.168.1.200 --serviceport 3306 --username zabbix --password zabbix --zabbixserver 192.168.1.2 --zabbixserver_port 10051 
 #important: your_mysqlservice_hostname must be the same as in your zabbix hostname config.
-#pip3 install mysqlclient
+#pip3 install PyMySQL
 #pip3 install argparse
 #pip3 install py-zabbix
 
@@ -16,10 +16,10 @@ import subprocess
 from subprocess import Popen
 from subprocess import PIPE
 import logging
-import MySQLdb
+import pymysql
 import argparse
 from pyzabbix.sender import ZabbixMetric, ZabbixSender
-
+import unicodedata
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--servicehostname", action="store", dest='servicehostname', help="input the database servcie hostname", required=True)
@@ -39,7 +39,7 @@ PASSWORD=args.password
 ZABBIX_SERVER=args.zabbixserver
 ZABBIX_SERVER_PORT=args.zabbixserver_port
 
-logging.basicConfig(level=logging.DEBUG,
+logging.basicConfig(level=logging.INFO,
                     filename='/var/log/zabbix/epmmm-get-mysql-stats.log',
                     datefmt='%Y/%m/%d %H:%M:%S',
                     format='%(asctime)s - %(name)s - %(levelname)s - %(lineno)d - %(module)s - %(message)s')
@@ -50,18 +50,18 @@ def send_to_zabbix(packet):
     server = ZabbixSender(ZABBIX_SERVER,ZABBIX_SERVER_PORT)
     server.send(packet)
 
+
+
 def generate_packet(SERVICEHOSTNAME,resaultdic):
     packet = []
     for key in resaultdic.keys():
-        packet.append(ZabbixMetric(SERVICEHOSTNAME, "epmmm.mysql.%s" % key,str(resaultdic[key] if resaultdic[key]!='' else 0)))   
+        packet.append(ZabbixMetric(SERVICEHOSTNAME, "epmmm.mysql.%s" % key,str(resaultdic[key] if resaultdic[key]!='' else 0)))
+    
     return packet
 
+
 def get_mysql_status(querysql):
-    try:
-        conn = MySQLdb.connect(host=SERVICEIP, port=SERVICEPORT, user=USERNAME, passwd=PASSWORD,db='',charset="utf8")
-    except Exception as e:
-        logger.info('epmmm %s, %s!', SERVICEHOSTNAME, e)
-        os._exit()
+    conn = pymysql.connect(host=SERVICEIP, port=SERVICEPORT, user=USERNAME, passwd=PASSWORD,db='',charset="utf8")
     try:
         cursor = conn.cursor()
         cursor.execute(querysql)
@@ -69,33 +69,31 @@ def get_mysql_status(querysql):
         return result
     except Exception as e:
         logger.info('epmmm %s, %s!', SERVICEHOSTNAME, e)
-    cursor.close()
-    conn.close()
+    finally:
+        cursor.close()
+        conn.close()
 
 def get_mysql_status_dic(querysql):
+    conn = pymysql.connect(host=SERVICEIP, port=SERVICEPORT, user=USERNAME, passwd=PASSWORD,db='',charset="utf8")
     try:
-        conn = MySQLdb.connect(host=SERVICEIP, port=SERVICEPORT, user=USERNAME, passwd=PASSWORD,db='',charset="utf8")
-    except Exception as e:
-        logger.info('epmmm %s, %s!', SERVICEHOSTNAME, e)
-        os._exit()
-    try:
-        cursor = conn.cursor(MySQLdb.cursors.DictCursor)
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
         cursor.execute(querysql)
         result = cursor.fetchall()
         return result
     except Exception as e:
         logger.info('epmmm %s, %s!', SERVICEHOSTNAME, e)
-    cursor.close()
-    conn.close()
+    finally:
+        cursor.close()
+        conn.close()
 
 def is_number(s):
     try:
         float(s)
         return True
     except ValueError:
-        pass 
+        pass
+ 
     try:
-        import unicodedata
         unicodedata.numeric(s)
         return True
     except (TypeError, ValueError):
@@ -112,7 +110,12 @@ def increment(statusdic, key, howmuch):
 
 def to_float(rownum):
     rownum = re.findall('[\d+\.\d]*',rownum)
-    return float(rownum[0])
+    try:
+        f = float(rownum[0])
+    except Exception as e:
+        logger.info('epmmm %s, %s, %s!', SERVICEHOSTNAME, rownum, e)
+        return 0.0
+    return f
     
 def to_int(rownum):
     rownum = re.findall('[-+?\d+\.\d]*',rownum)
@@ -129,6 +132,7 @@ def get_resaultdic():
     MysqlStatus={}
     
     MysqlStatus['agent_OK']=1
+    
     resaults=get_mysql_status_dic('show master status;')
     if (resaults is not None):
         for resault in resaults:
@@ -137,7 +141,8 @@ def get_resaultdic():
             MasterStatus['Binlog_number'] = to_int(resault['File'].split('.')[1])
             MasterStatus['Binlog_do_filter'] = resault['Binlog_Do_DB']
             MasterStatus['Binlog_ignore_filter'] = resault['Binlog_Ignore_DB']
-    
+        
+
     resaults=get_mysql_status('show binary logs;')
     MasterStatus['Binlog_count']=0
     MasterStatus['Binlog_total_size']=0
@@ -145,6 +150,7 @@ def get_resaultdic():
         for resault in resaults:
             MasterStatus['Binlog_count'] += 1
             MasterStatus['Binlog_total_size'] += resault[1]
+
 
     resaults=get_mysql_status('show slave hosts;')
     MasterStatus['Slave_count']=0
@@ -174,9 +180,11 @@ def get_resaultdic():
             SlaveStatus['slave_lag_binlog']=SlaveStatus['Master_Log_File']-SlaveStatus['Relay_Master_Log_File']
             SlaveStatus['Relay_Log_Pos']=resault['Relay_Log_Pos']
             SlaveStatus['Relay_Log_Pos']=resault['Relay_Log_Pos']
+
         
     resaults=get_mysql_status('show global status;')
     if (resaults is not None):
+        MysqlStatus['alive']=1
         for resault in resaults:
             if ( is_number(resault[1])):
                 GlobalStatus[resault[0]]=to_int(resault[1])
@@ -188,6 +196,8 @@ def get_resaultdic():
         if( not 'Key_blocks_warm' in GlobalStatus):
             GlobalStatus['Key_blocks_warm']=0
     
+
+
     resaults=get_mysql_status('show global variables;')
     if (resaults is not None):
         for resault in resaults:
@@ -319,7 +329,8 @@ def get_resaultdic():
                 GlobalVariables['sync_relay_log_info']=resault[1]          
             elif(resault[0]=='slave_skip_errors'):
                 GlobalVariables['slave_skip_errors']=resault[1]                                     
-         
+        
+        
         GlobalVariables['key_buffer_blocks']=GlobalVariables['key_buffer_size']/GlobalVariables['key_cache_block_size']
         GlobalStatus['Key_blocks_used_now']=GlobalVariables['key_buffer_blocks']-GlobalStatus['Key_blocks_unused']
         GlobalStatus['Key_blocks_not_flushed_b'] = GlobalVariables['key_cache_block_size'] * GlobalStatus['Key_blocks_not_flushed'];
@@ -350,6 +361,8 @@ def get_resaultdic():
             GlobalStatus['Qcache_block_per_query'] = 0
         else:
             GlobalStatus['Qcache_block_per_query'] = int(GlobalStatus['Qcache_used_blocks'] / GlobalStatus['Qcache_queries_in_cache'])
+                            
+
     
     resaults=get_mysql_status('show engine innodb status;')
     if (resaults is not None):
@@ -387,7 +400,10 @@ def get_resaultdic():
             elif (line.find("seconds the semaphore:") > 0):
                 # --Thread 907205 has waited at handler/ha_innodb.cc line 7156 for 1.00 seconds the semaphore:
                 InnodbStatus=increment(InnodbStatus,'innodb_sem_waits',1)
-                InnodbStatus=increment(InnodbStatus,'innodb_sem_wait_time_ms',to_int(str(to_float(row[9])*1000)))
+                try:
+                    InnodbStatus=increment(InnodbStatus,'innodb_sem_wait_time_ms',to_int(str(to_float(row[9])*1000)))
+                except Exception as e:
+                    logger.info('epmmm %s, %s!', SERVICEHOSTNAME, e)
             elif (line.find("Trx id counter") == 0):
                 # --Thread 907205 has waited at handler/ha_innodb.cc line 7156 for 1.00 seconds the semaphore:
                 InnodbStatus['innodb_transactions']=to_int(row[3])
@@ -621,9 +637,9 @@ def main():
         #print(packet)
         send_to_zabbix(packet)
     except Exception as e:
-        logger.info('epmmm %s, %s!', SERVICEHOSTNAME, e)    
+        logger.info('epmmm %s, %s!', SERVICEHOSTNAME, e)
+        logger.info(packet)
     
     
 if __name__=='__main__':
     main()   
-
