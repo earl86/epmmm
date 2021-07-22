@@ -20,7 +20,7 @@ hostname = args.hostname
 serviceip = args.serviceip
 serviceport = args.serviceport
 
-zabbix_host = '10.17.13.2'      # Zabbix Server IP
+zabbix_host = '192.168.1.108'      # Zabbix Server IP
 zabbix_port = 10051             # Zabbix Server Port
 
 
