@@ -44,6 +44,9 @@ def main():
             packet.append(ZabbixMetric(tendis_servicename, "tendis[%s]" % (item+"_calls"),server_info[item]['calls']))
             packet.append(ZabbixMetric(tendis_servicename, "tendis[%s]" % (item+"_num"),server_info[item]['num']))
         elif (item == 'slave0' or item == 'slave1' or item == 'slave2' or item == 'slave3'):
+            #slave0:ip=192.168.1.20,port=8901,state=online,offset=84059102,lag=0,binlog_lag=0
+            packet.append(ZabbixMetric(tendis_servicename, "tendis[%s]" % (item+"_state"),server_info[item]['state']))
+            packet.append(ZabbixMetric(tendis_servicename, "tendis[%s]" % (item+"_lag"),server_info[item]['lag']))
             packet.append(ZabbixMetric(tendis_servicename, "tendis[%s]" % (item+"_binlog_lag"),server_info[item]['binlog_lag']))
         else:
             packet.append(ZabbixMetric(tendis_servicename, "tendis[%s]" % item,server_info[item]))
