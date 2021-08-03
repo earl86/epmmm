@@ -1,7 +1,7 @@
 #!/bin/sh
 # The wrapper for tendis of zabbix python script.
 # It runs the script every 30 seconds. and parses the cache file on each following run.
-# Test the script using: zabbix_get -s servicename -p 10050 -k "epmmm.tendis.check[servicename,serviceip,3901,servicepassword,check]"
+# Test the script using: zabbix_get -s zabbix_agent_ip -p 10050 -k "epmmm.tendis.check[servicename,serviceip,3901,servicepassword,check]"
 # The script need Python Running Environment pip3 install py-zabbix redis argparse
 # The default monitor tendis port is 3901, if need to monitor other port, you need to add the Macros:{$TENDIS_PORT}=xxxx and {$TENDIS_PASSWORD}=xxxx on the monitor Host
 # Authors: earl86
