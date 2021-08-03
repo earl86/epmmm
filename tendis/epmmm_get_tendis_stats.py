@@ -30,7 +30,7 @@ def send_to_zabbix(packet, zabbix_host, zabbix_port):
 
 
 def main():
-    client = redis.StrictRedis(host=tendis_serviceip, port=tendis_port, password=tendis_password)
+    client = redis.StrictRedis(host=tendis_serviceip, port=tendis_port, password=tendis_password, socket_timeout=5, socket_connect_timeout=2)
     server_info = client.info(section='all')
 
     packet = []
