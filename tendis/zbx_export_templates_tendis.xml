@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>2.0</version>
-    <date>2021-07-29T10:32:09Z</date>
+    <date>2021-08-03T06:48:30Z</date>
     <groups>
         <group>
             <name>Template EPMMM Tendis</name>
@@ -6805,7 +6805,7 @@ pip3 install py-zabbix</description>
                     <snmp_community/>
                     <multiplier>0</multiplier>
                     <snmp_oid/>
-                    <key>epmmm.tendis.check[{HOST.NAME},{HOST.IP},{$TENDIS_PORT},check]</key>
+                    <key>epmmm.tendis.check[{HOST.NAME},{HOST.IP},{$TENDIS_PORT},{$TENDIS_PASSWORD},check]</key>
                     <delay>5</delay>
                     <history>30</history>
                     <trends>365</trends>
@@ -6889,8 +6889,12 @@ pip3 install py-zabbix</description>
             <discovery_rules/>
             <macros>
                 <macro>
+                    <macro>{$TENDIS_PASSWORD}</macro>
+                    <value>test</value>
+                </macro>
+                <macro>
                     <macro>{$TENDIS_PORT}</macro>
-                    <value>8901</value>
+                    <value>3901</value>
                 </macro>
             </macros>
             <templates/>
@@ -6899,7 +6903,7 @@ pip3 install py-zabbix</description>
     </templates>
     <triggers>
         <trigger>
-            <expression>{Template epmmm Tendis trapper:epmmm.tendis.check[{HOST.NAME},{HOST.IP},{$TENDIS_PORT},check].last(0)}=0</expression>
+            <expression>{Template epmmm Tendis trapper:epmmm.tendis.check[{HOST.NAME},{HOST.IP},{$TENDIS_PORT},{$TENDIS_PASSWORD},check].last(0)}=0</expression>
             <name>epmmm Agent is down</name>
             <url/>
             <status>0</status>
@@ -6947,7 +6951,7 @@ pip3 install py-zabbix</description>
                     <type>0</type>
                     <item>
                         <host>Template epmmm Tendis trapper</host>
-                        <key>epmmm.tendis.check[{HOST.NAME},{HOST.IP},{$TENDIS_PORT},check]</key>
+                        <key>epmmm.tendis.check[{HOST.NAME},{HOST.IP},{$TENDIS_PORT},{$TENDIS_PASSWORD},check]</key>
                     </item>
                 </graph_item>
             </graph_items>
