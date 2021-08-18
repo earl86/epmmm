@@ -3,11 +3,11 @@
 #encoding:utf8
 #The user to monitor Your MySQL Service.
 #GRANT PROCESS, REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO 'zabbix'@'%' IDENTIFIED BY 'zabbix';
-#test use: python epmmm_get_mysql_stats.py --servicehostname your_mysqlservice_hostname --serviceip 192.168.1.200 --serviceport 3306 --username zabbix --password zabbix --zabbixserver 192.168.1.2 --zabbixserver_port 10051
+#test use: python3 epmmm_get_mysql_stats-python3.py --servicehostname your_mysqlservice_hostname --serviceip 192.168.1.200 --serviceport 3306 --username zabbix --password zabbix --zabbixserver 192.168.1.2 --zabbixserver_port 10051
 #important: your_mysqlservice_hostname must be the same as in your zabbix hostname config.
-#pip install MySQL-python
-#pip install argparse
-#pip install py-zabbix
+#pip3 install PyMySQL
+#pip3 install argparse
+#pip3 install py-zabbix
 
 import os
 import re
@@ -16,10 +16,10 @@ import subprocess
 from subprocess import Popen
 from subprocess import PIPE
 import logging
-import MySQLdb
+import pymysql
 import argparse
 from pyzabbix.sender import ZabbixMetric, ZabbixSender
-
+import unicodedata
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--servicehostname", action="store", dest='servicehostname', help="input the database servcie hostname", required=True)
@@ -39,8 +39,7 @@ PASSWORD=args.password
 ZABBIX_SERVER=args.zabbixserver
 ZABBIX_SERVER_PORT=args.zabbixserver_port
 
-
-logging.basicConfig(level=logging.DEBUG,
+logging.basicConfig(level=logging.INFO,
                     filename='/var/log/zabbix/epmmm-get-mysql-stats.log',
                     datefmt='%Y/%m/%d %H:%M:%S',
                     format='%(asctime)s - %(name)s - %(levelname)s - %(lineno)d - %(module)s - %(message)s')
@@ -51,44 +50,41 @@ def send_to_zabbix(packet):
     server = ZabbixSender(ZABBIX_SERVER,ZABBIX_SERVER_PORT)
     server.send(packet)
 
+
+
 def generate_packet(SERVICEHOSTNAME,resaultdic):
     packet = []
     for key in resaultdic.keys():
-        packet.append(ZabbixMetric(SERVICEHOSTNAME, "epmmm.mysql.%s" % key,str(resaultdic[key] if resaultdic[key]!='' else 0)))   
+        packet.append(ZabbixMetric(SERVICEHOSTNAME, "epmmm.mysql.%s" % key,str(resaultdic[key] if resaultdic[key]!='' else 0)))
+
     return packet
 
 
 def get_mysql_status(querysql):
-    try:
-        conn = MySQLdb.connect(host=SERVICEIP, port=SERVICEPORT, user=USERNAME, passwd=PASSWORD,db='',charset="utf8")
-    except Exception, e:
-        logger.info('epmmm %s, %s!' % (SERVICEHOSTNAME, e))
-        os._exit()
+    conn = pymysql.connect(host=SERVICEIP, port=SERVICEPORT, user=USERNAME, passwd=PASSWORD,db='',charset="utf8")
     try:
         cursor = conn.cursor()
         cursor.execute(querysql)
         result = cursor.fetchall()
         return result
-    except Exception, e:
-        logger.info('epmmm %s, %s!' % (SERVICEHOSTNAME, e))
-    cursor.close()
-    conn.close()
+    except Exception as e:
+        logger.info('epmmm %s, %s, %s!', SERVICEHOSTNAME, e, querysql)
+    finally:
+        cursor.close()
+        conn.close()
 
 def get_mysql_status_dic(querysql):
+    conn = pymysql.connect(host=SERVICEIP, port=SERVICEPORT, user=USERNAME, passwd=PASSWORD,db='',charset="utf8")
     try:
-        conn = MySQLdb.connect(host=SERVICEIP, port=SERVICEPORT, user=USERNAME, passwd=PASSWORD,db='',charset="utf8")
-    except Exception, e:
-        logger.info('epmmm %s, %s!' % (SERVICEHOSTNAME, e))
-        os._exit()
-    try:
-        cursor = conn.cursor(MySQLdb.cursors.DictCursor)
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
         cursor.execute(querysql)
         result = cursor.fetchall()
         return result
-    except Exception, e:
-        logger.info('epmmm %s, %s!' % (SERVICEHOSTNAME, e))
-    cursor.close()
-    conn.close()
+    except Exception as e:
+        logger.info('epmmm %s, %s, %s!', SERVICEHOSTNAME, e, querysql)
+    finally:
+        cursor.close()
+        conn.close()
 
 def is_number(s):
     try:
@@ -96,9 +92,8 @@ def is_number(s):
         return True
     except ValueError:
         pass
- 
+
     try:
-        import unicodedata
         unicodedata.numeric(s)
         return True
     except (TypeError, ValueError):
@@ -106,7 +101,7 @@ def is_number(s):
     return False
 
 def increment(statusdic, key, howmuch):
-    if (statusdic.has_key(key)):
+    if (key in statusdic):
         statusdic[key]=statusdic[key]+howmuch
         return statusdic
     else:
@@ -115,8 +110,13 @@ def increment(statusdic, key, howmuch):
 
 def to_float(rownum):
     rownum = re.findall('[\d+\.\d]*',rownum)
-    return float(rownum[0])
-    
+    try:
+        f = float(rownum[0])
+    except Exception as e:
+        logger.info('epmmm %s, %s, %s!', SERVICEHOSTNAME, rownum, e)
+        return 0.0
+    return f
+
 def to_int(rownum):
     rownum = re.findall('[-+?\d+\.\d]*',rownum)
     return int(float(rownum[0]))
@@ -130,8 +130,9 @@ def get_resaultdic():
     GlobalVariables={}
     InnodbStatus={}
     MysqlStatus={}
-    
+
     MysqlStatus['agent_OK']=1
+
     resaults=get_mysql_status_dic('show master status;')
     if (resaults is not None):
         for resault in resaults:
@@ -140,7 +141,7 @@ def get_resaultdic():
             MasterStatus['Binlog_number'] = to_int(resault['File'].split('.')[1])
             MasterStatus['Binlog_do_filter'] = resault['Binlog_Do_DB']
             MasterStatus['Binlog_ignore_filter'] = resault['Binlog_Ignore_DB']
-        
+
 
     resaults=get_mysql_status('show binary logs;')
     MasterStatus['Binlog_count']=0
@@ -156,7 +157,7 @@ def get_resaultdic():
     if (resaults is not None):
         for resault in resaults:
             MasterStatus['Slave_count'] += 1
- 
+
     resaults=get_mysql_status_dic('show slave status;')
     # Scale slave_running and slave_stopped relative to the slave lag.
     if (resaults is not None):
@@ -167,12 +168,12 @@ def get_resaultdic():
                 SlaveStatus['Slave_IO_Running']=1
             else:
                 SlaveStatus['Slave_IO_Running']=0
-                
+
             if(resault['Slave_SQL_Running']=='Yes'):
                 SlaveStatus['Slave_SQL_Running']=1
             else:
                 SlaveStatus['Slave_SQL_Running']=0
-        
+
             SlaveStatus['Read_Master_Log_Pos']=resault['Read_Master_Log_Pos']
             SlaveStatus['Exec_Master_Log_Pos']=resault['Exec_Master_Log_Pos']
             SlaveStatus['Seconds_Behind_Master']=resault['Seconds_Behind_Master']
@@ -180,31 +181,32 @@ def get_resaultdic():
             SlaveStatus['Relay_Log_Pos']=resault['Relay_Log_Pos']
             SlaveStatus['Relay_Log_Pos']=resault['Relay_Log_Pos']
 
-        
+
     resaults=get_mysql_status('show global status;')
     if (resaults is not None):
+        MysqlStatus['alive']=1
         for resault in resaults:
             if ( is_number(resault[1])):
                 GlobalStatus[resault[0]]=to_int(resault[1])
         #mariadb
-        if( not GlobalStatus.has_key('Access_denied_errors')):
+        if( not 'Access_denied_errors' in GlobalStatus):
             GlobalStatus['Access_denied_errors']=0
-        if( not GlobalStatus.has_key('Binlog_bytes_written')):
+        if( not 'Binlog_bytes_written' in GlobalStatus):
             GlobalStatus['Binlog_bytes_written']=0
-        if( not GlobalStatus.has_key('Key_blocks_warm')):
+        if( not 'Key_blocks_warm' in GlobalStatus):
             GlobalStatus['Key_blocks_warm']=0
-    
+
 
 
     resaults=get_mysql_status('show global variables;')
     if (resaults is not None):
         for resault in resaults:
             if(resault[0]=='max_connections'):
-                GlobalVariables['max_connections']=to_int(resault[1])   
+                GlobalVariables['max_connections']=to_int(resault[1])
             elif(resault[0]=='innodb_log_buffer_size'):
                 GlobalVariables['innodb_log_buffer_size']=to_int(resault[1])
             elif(resault[0]=='key_buffer_size'):
-                GlobalVariables['key_buffer_size']=to_int(resault[1])            
+                GlobalVariables['key_buffer_size']=to_int(resault[1])
             elif(resault[0]=='key_cache_block_size'):
                 GlobalVariables['key_cache_block_size']=to_int(resault[1])
             elif(resault[0]=='innodb_page_size'):
@@ -212,7 +214,7 @@ def get_resaultdic():
             elif(resault[0]=='query_cache_size'):
                 GlobalVariables['query_cache_size']=to_int(resault[1])
             elif(resault[0]=='table_open_cache'):
-                GlobalVariables['table_open_cache']=to_int(resault[1])  
+                GlobalVariables['table_open_cache']=to_int(resault[1])
             elif(resault[0]=='thread_cache_size'):
                 GlobalVariables['thread_cache_size']=to_int(resault[1])
             elif(resault[0]=='character_set_server'):
@@ -322,13 +324,13 @@ def get_resaultdic():
             elif(resault[0]=='read_only'):
                 GlobalVariables['read_only']=resault[1]
             elif(resault[0]=='sync_relay_log'):
-                GlobalVariables['sync_relay_log']=resault[1]   
+                GlobalVariables['sync_relay_log']=resault[1]
             elif(resault[0]=='sync_relay_log_info'):
-                GlobalVariables['sync_relay_log_info']=resault[1]          
+                GlobalVariables['sync_relay_log_info']=resault[1]
             elif(resault[0]=='slave_skip_errors'):
-                GlobalVariables['slave_skip_errors']=resault[1]                                     
-        
-        
+                GlobalVariables['slave_skip_errors']=resault[1]
+
+
         GlobalVariables['key_buffer_blocks']=GlobalVariables['key_buffer_size']/GlobalVariables['key_cache_block_size']
         GlobalStatus['Key_blocks_used_now']=GlobalVariables['key_buffer_blocks']-GlobalStatus['Key_blocks_unused']
         GlobalStatus['Key_blocks_not_flushed_b'] = GlobalVariables['key_cache_block_size'] * GlobalStatus['Key_blocks_not_flushed'];
@@ -341,27 +343,27 @@ def get_resaultdic():
             GlobalStatus['Key_buffer_hit_rate'] = 0.0
         else:
             GlobalStatus['Key_buffer_hit_rate'] = round(GlobalStatus['Key_read_requests'] * 100.00 / (GlobalStatus['Key_read_requests'] + GlobalStatus['Key_reads']), 2)
-        
+
         if ( len(re.findall('([0-9]{1,2}).([0-9]{1,2}).([0-9]{1,2})', GlobalVariables['version']))>0):
             march=re.findall('([0-9]{1,2}).([0-9]{1,2}).([0-9]{1,2})', GlobalVariables['version'])
-            GlobalVariables['mr_version']='%s%s%s' %(march[0][0],march[0][1],march[0][2])
+            GlobalVariables['mr_version']='%s%s' %(march[0][0],march[0][1])
         else:
             GlobalVariables['mr_version'] = 'error'
-        
+
         GlobalStatus['Qcache_used_blocks']     = GlobalStatus['Qcache_total_blocks'] - GlobalStatus['Qcache_free_blocks']
         GlobalStatus['Qcache_used_memory']     = GlobalVariables['query_cache_size'] - GlobalStatus['Qcache_free_memory']
         if ( GlobalStatus['Qcache_used_blocks'] == 0 ):
             GlobalStatus['Qcache_byte_per_block']  = 0
         else:
             GlobalStatus['Qcache_byte_per_block']  = int(GlobalStatus['Qcache_used_memory'] / GlobalStatus['Qcache_used_blocks'])
-            
+
         if ( GlobalStatus['Qcache_queries_in_cache'] == 0 ):
             GlobalStatus['Qcache_block_per_query'] = 0
         else:
             GlobalStatus['Qcache_block_per_query'] = int(GlobalStatus['Qcache_used_blocks'] / GlobalStatus['Qcache_queries_in_cache'])
-                            
 
-    
+
+
     resaults=get_mysql_status('show engine innodb status;')
     if (resaults is not None):
         lines=resaults[0][2].split("\n")
@@ -398,7 +400,10 @@ def get_resaultdic():
             elif (line.find("seconds the semaphore:") > 0):
                 # --Thread 907205 has waited at handler/ha_innodb.cc line 7156 for 1.00 seconds the semaphore:
                 InnodbStatus=increment(InnodbStatus,'innodb_sem_waits',1)
-                InnodbStatus=increment(InnodbStatus,'innodb_sem_wait_time_ms',to_int(str(to_float(row[9])*1000)))
+                try:
+                    InnodbStatus=increment(InnodbStatus,'innodb_sem_wait_time_ms',to_int(str(to_float(row[9])*1000)))
+                except Exception as e:
+                    logger.info('epmmm %s, %s!', SERVICEHOSTNAME, e)
             elif (line.find("Trx id counter") == 0):
                 # --Thread 907205 has waited at handler/ha_innodb.cc line 7156 for 1.00 seconds the semaphore:
                 InnodbStatus['innodb_transactions']=to_int(row[3])
@@ -435,15 +440,34 @@ def get_resaultdic():
                 InnodbStatus['file_reads']=to_int(row[0])
                 InnodbStatus['file_writes']=to_int(row[4])
                 InnodbStatus['file_fsyncs']=to_int(row[8])
-            elif(line.find("Pending normal aio reads:")==0):
-                # Pending normal aio reads: 0, aio writes: 0,
-                InnodbStatus['pending_normal_aio_reads']=to_int(row[4])
-                InnodbStatus['pending_normal_aio_writes']=to_int(row[7])
-            elif(line.find("ibuf aio reads")==0):
-                #  ibuf aio reads: 0, log i/o's: 0, sync i/o's: 0
-                InnodbStatus['pending_ibuf_aio_reads']=to_int(row[3])
-                InnodbStatus['pending_aio_log_ios']=to_int(row[6])
-                InnodbStatus['pending_aio_sync_ios']=to_int(row[9])  
+                #elif(line.find("Pending normal aio reads:")==0):
+                #if(GlobalVariables['mr_version'] == '57'):
+                #Pending normal aio reads: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] , aio writes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] ,
+                #ia = s.split(": [")[1].split("] ,")[0].split(", ")
+                #iw = s.split(": [")[2].split("] ,")[0].split(", ")
+                #iasum = 0
+                #iwsum = 0
+                #for a in ia:
+                #iasum += to_int(a)
+                #for w in iw:
+                #iwsum += to_int(w)
+                #InnodbStatus['pending_normal_aio_reads'] = iasum
+                #InnodbStatus['pending_normal_aio_writes'] = iwsum
+                #else:
+                ## Pending normal aio reads: 0, aio writes: 0,
+                #InnodbStatus['pending_normal_aio_reads']=to_int(row[4])
+                #InnodbStatus['pending_normal_aio_writes']=to_int(row[7])
+                #elif(line.find("ibuf aio reads")==0):
+                #if(GlobalVariables['mr_version'] == '57'):
+                ## ibuf aio reads:, log i/o's:, sync i/o's:
+                #InnodbStatus['pending_ibuf_aio_reads']=0
+                #InnodbStatus['pending_aio_log_ios']=0
+                #InnodbStatus['pending_aio_sync_ios']=0
+                #else:
+                ##  ibuf aio reads: 0, log i/o's: 0, sync i/o's: 0
+                #InnodbStatus['pending_ibuf_aio_reads']=to_int(row[3])
+                #InnodbStatus['pending_aio_log_ios']=to_int(row[6])
+                #InnodbStatus['pending_aio_sync_ios']=to_int(row[9])
             elif(line.find("Pending flushes (fsync)")==0):
                 # Pending flushes (fsync) log: 0; buffer pool: 0
                 InnodbStatus['pending_log_flushes']=to_int(row[4])
@@ -469,7 +493,7 @@ def get_resaultdic():
                 # merged operations:
                 # insert 593983, delete mark 387006, delete 73092
                 InnodbStatus['ibuf_inserts']=to_int(row[1])
-                InnodbStatus['ibuf_merged']=to_int(row[1]) + to_int(row[4]) + to_int(row[6]) 
+                InnodbStatus['ibuf_merged']=to_int(row[1]) + to_int(row[4]) + to_int(row[6])
             elif(line.find(" merged recs, ")==0):
                 # 19817685 inserts, 19817684 merged recs, 3552620 merges
                 InnodbStatus['ibuf_inserts']=to_int(row[0])
@@ -479,16 +503,19 @@ def get_resaultdic():
                 # In some versions of InnoDB, the used cells is omitted.
                 # Hash table size 57374437, node heap has 72964 buffer(s) <-- no used cells
                 InnodbStatus['hash_table_size']=to_int(row[3])
-                if(line.find("node heap has")>0): 
-                    InnodbStatus['Innodb_hash_node_size']=to_int(row[7])*GlobalVariables['innodb_page_size']                
+                if(line.find("node heap has")>0):
+                    InnodbStatus['Innodb_hash_node_size']=to_int(row[7])*GlobalVariables['innodb_page_size']
                 if(line.find("used cells")>0):
                     InnodbStatus['hash_index_cells_used']=to_int(row[6])
                 else:
                     InnodbStatus['hash_index_cells_used']=0
             elif(line.find("hash searches/s")>0):
                 #2225.77 hash searches/s, 71.93 non-hash searches/s
-                InnodbStatus['Innodb_hash_searches']=to_float(row[0])
-                InnodbStatus['Innodb_non_hash_searches']=to_float(row[3])
+                try:
+                    InnodbStatus['Innodb_hash_searches']=to_float(row[0])
+                    InnodbStatus['Innodb_non_hash_searches']=to_float(row[3])
+                except Exception as e:
+                    logger.info('epmmm %s, %s!', SERVICEHOSTNAME, e)
             # LOG
             elif(line.find(" log i/o's done, ")>0):
                 # 3430041 log i/o's done, 17.44 log i/o's/second
@@ -540,7 +567,7 @@ def get_resaultdic():
                 InnodbStatus['additional_pool_alloc']=to_int(row[8])
             elif(line.find("Adaptive hash index")==0):
                 #Adaptive hash index 19057200        (18921928 + 135272)
-                InnodbStatus['adaptive_hash_memory']=to_int(row[3])          
+                InnodbStatus['adaptive_hash_memory']=to_int(row[3])
             elif(line.find("Page hash           ")==0):
                 #   Page hash           11688584
                 InnodbStatus['page_hash_memory']=to_int(row[2])
@@ -555,10 +582,10 @@ def get_resaultdic():
                 InnodbStatus['lock_system_memory']=to_int(row[2])
             elif(line.find("Recovery system     ")==0):
                 #   Recovery system     0     (0 + 0)
-                InnodbStatus['recovery_system_memory']=to_int(row[2])        
+                InnodbStatus['recovery_system_memory']=to_int(row[2])
             elif(line.find("Threads            ")==0):
                 #   Threads             409336     (406936 + 2400)
-                InnodbStatus['thread_hash_memory']=to_int(row[1])  
+                InnodbStatus['thread_hash_memory']=to_int(row[1])
             elif(line.find("innodb_io_pattern   ")==0):
                 #   innodb_io_pattern   0     (0 + 0)
                 InnodbStatus['innodb_io_pattern_memory']=to_int(row[1])
@@ -570,29 +597,29 @@ def get_resaultdic():
                 #0 read views open inside InnoDB
                 InnodbStatus['Innodb_open_read_views_inside_innodb']=to_int(row[0])
             prev_line = line
-        
+
         InnodbStatus['unflushed_log']=InnodbStatus['Innodb_log_sequence_number']+InnodbStatus['Innodb_log_flushed_up_to']
         InnodbStatus['uncheckpointed_bytes']=InnodbStatus['Innodb_log_sequence_number']+InnodbStatus['Innodb_last_checkpoint_at']
-        
+
         GlobalStatus['Innodb_buffer_pool_pages_data_b'] = GlobalVariables['innodb_page_size'] * GlobalStatus['Innodb_buffer_pool_pages_data']
         GlobalStatus['Innodb_buffer_pool_pages_dirty_b'] = GlobalVariables['innodb_page_size'] * GlobalStatus['Innodb_buffer_pool_pages_dirty']
         GlobalStatus['Innodb_buffer_pool_pages_free_b'] = GlobalVariables['innodb_page_size'] * GlobalStatus['Innodb_buffer_pool_pages_free']
         # We get from time to time: Type of received value [3.02231454903657e+23] is not suitable...
         GlobalStatus['Innodb_buffer_pool_pages_misc_b'] = int(GlobalVariables['innodb_page_size'] * GlobalStatus['Innodb_buffer_pool_pages_misc'])
         GlobalStatus['Innodb_buffer_pool_pages_total_b'] = GlobalVariables['innodb_page_size'] * GlobalStatus['Innodb_buffer_pool_pages_total']
-        
+
         if ( (GlobalStatus['Innodb_buffer_pool_read_requests'] + GlobalStatus['Innodb_buffer_pool_reads']) == 0 ):
             GlobalStatus['Innodb_buffer_pool_hit_ratio'] = 0.0
         else:
             #Not good because it is average over all time!
             GlobalStatus['Innodb_buffer_pool_hit_ratio'] = round(GlobalStatus['Innodb_buffer_pool_read_requests'] * 100.00 / (GlobalStatus['Innodb_buffer_pool_read_requests'] + GlobalStatus['Innodb_buffer_pool_reads']), 2)
-            
+
         GlobalStatus['Innodb_buffer_pool_max_dirty_pages'] = math.floor(GlobalStatus['Innodb_buffer_pool_pages_total'] * GlobalVariables['innodb_max_dirty_pages_pct'] / 100)
         GlobalStatus['Innodb_buffer_pool_max_dirty_pages_b'] = GlobalVariables['innodb_page_size'] * GlobalStatus['Innodb_buffer_pool_max_dirty_pages']
-        
+
         if ( GlobalVariables['innodb_flush_method'] == '' ):
             GlobalVariables['innodb_flush_method'] = 'fsync'
-        
+
         #innodb_log_file_size cannot be 0. I have no clue atm how this can happen...
         if ( GlobalVariables['innodb_log_file_size'] == '0' ) :
             GlobalVariables['innodb_log_file_size']=0
@@ -614,21 +641,27 @@ def get_resaultdic():
     if (resaults is not None):
         for resault in resaults:
             InnodbStatus['Innodb_trx_' + resault[0]] = resault[1]
-    
-    resaultdic=dict(MasterStatus.items()+SlaveStatus.items()+GlobalStatus.items()+GlobalVariables.items()+InnodbStatus.items()+MysqlStatus.items())
+
+    resaultdic={}
+    resaultdic.update(MasterStatus)
+    resaultdic.update(SlaveStatus)
+    resaultdic.update(GlobalStatus)
+    resaultdic.update(GlobalVariables)
+    resaultdic.update(InnodbStatus)
+    resaultdic.update(MysqlStatus)
     return resaultdic
 
+
 def main():
+    resaultdic=get_resaultdic()
     try:
-        resaultdic=get_resaultdic()
         packet = generate_packet(SERVICEHOSTNAME,resaultdic)
         #print(packet)
         send_to_zabbix(packet)
-    except Exception, e:
-        logger.info('epmmm %s, %s!' % (SERVICEHOSTNAME, e)) 
-    
+    except Exception as e:
+        logger.info('epmmm %s, %s!', SERVICEHOSTNAME, e)
+        logger.info(packet)
+
 
 if __name__=='__main__':
-    main()   
-
-
+    main()
