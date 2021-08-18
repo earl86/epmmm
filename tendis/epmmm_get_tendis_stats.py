@@ -20,7 +20,7 @@ tendis_serviceip = args.tendis_serviceip
 tendis_port = args.tendis_port
 tendis_password = args.tendis_password
 
-zabbix_host = '192.168.1.100'   # Zabbix Server IP
+zabbix_host = '192.168.1.100'      # Zabbix Server IP
 zabbix_port = 10051             # Zabbix Server Port
 
 
@@ -50,6 +50,15 @@ def main():
             packet.append(ZabbixMetric(tendis_servicename, "tendis[%s]" % (item+"_binlog_lag"),server_info[item]['binlog_lag']))
         else:
             packet.append(ZabbixMetric(tendis_servicename, "tendis[%s]" % item,server_info[item]))
+
+    last_slowlog_info = client.slowlog_get(num=1)
+    if last_slowlog_info:
+        packet.append(ZabbixMetric(tendis_servicename, "tendis[%s]" % 'last_slowlog_id',last_slowlog_info[0]['id']))
+
+    cluster_info = client.execute_command('cluster info')
+    for key in cluster_info:
+        packet.append(ZabbixMetric(tendis_servicename, "tendis[%s]" % key,cluster_info[key]))
+
 
     #print (packet)
     # Send packet to zabbix
