@@ -14,7 +14,7 @@ ITEM=$5
 
 DIR=`dirname $0`
 
-CMD="/usr/bin/python3 $DIR/epmmm_get_tendis_stats.py -n $SERVICEHOSTNAME -s $SERVICEHOSTIP -p $SERVICEPORT -a $SERVICEPASSWORD"
+CMD="python3 $DIR/epmmm_get_tendis_stats.py -n $SERVICEHOSTNAME -s $SERVICEHOSTIP -p $SERVICEPORT -a $SERVICEPASSWORD"
 
 if [ "$ITEM" = "check" ]; then
     $CMD 2>&1 > /dev/null
