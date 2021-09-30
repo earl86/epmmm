@@ -11,11 +11,15 @@ SERVICEHOSTNAME=$1
 SERVICEHOSTIP=$2
 SERVICEPORT=$3
 ITEM=$4
-PASSWORD=xxxxxx
+PASSWORD=$5
 
 DIR=`dirname $0`
 
-CMD="/usr/bin/python3 $DIR/epmmm_get_redis_stats.py -n $SERVICEHOSTNAME -s $SERVICEHOSTIP -p $SERVICEPORT -a $PASSWORD"
+if [ "$PASSWORD" == "isnull" ]; then
+    CMD="python3 $DIR/epmmm_get_redis_stats.py -n $SERVICEHOSTNAME -s $SERVICEHOSTIP -p $SERVICEPORT"
+else
+    CMD="python3 $DIR/epmmm_get_redis_stats.py -n $SERVICEHOSTNAME -s $SERVICEHOSTIP -p $SERVICEPORT -a $PASSWORD"
+fi
 
 if [ "$ITEM" = "check" ]; then
     $CMD 2>&1 > /dev/null
