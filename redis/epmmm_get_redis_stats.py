@@ -20,7 +20,7 @@ redis_serviceip = args.redis_serviceip
 redis_port = args.redis_port
 redis_pass = args.redis_pass
 
-zabbix_host = '10.17.13.2'      # Zabbix Server IP
+zabbix_host = '192.168.1.1'      # Zabbix Server IP
 zabbix_port = 10051             # Zabbix Server Port
 
 
