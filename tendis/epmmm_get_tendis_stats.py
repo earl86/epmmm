@@ -20,7 +20,7 @@ tendis_serviceip = args.tendis_serviceip
 tendis_port = args.tendis_port
 tendis_password = args.tendis_password
 
-zabbix_host = '10.17.13.2'      # Zabbix Server IP
+zabbix_host = '192.168.1.188'      # Zabbix Server IP
 zabbix_port = 10051             # Zabbix Server Port
 
 
