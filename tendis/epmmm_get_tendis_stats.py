@@ -20,7 +20,7 @@ tendis_serviceip = args.tendis_serviceip
 tendis_port = args.tendis_port
 tendis_password = args.tendis_password
 
-zabbix_host = '192.168.1.100'      # Zabbix Server IP
+zabbix_host = '10.17.13.2'      # Zabbix Server IP
 zabbix_port = 10051             # Zabbix Server Port
 
 
@@ -30,10 +30,10 @@ def send_to_zabbix(packet, zabbix_host, zabbix_port):
 
 
 def main():
-    client = redis.StrictRedis(host=tendis_serviceip, port=tendis_port, password=tendis_password, socket_timeout=5, socket_connect_timeout=2)
-    server_info = client.info(section='all')
-
     packet = []
+    client = redis.StrictRedis(host=tendis_serviceip, port=tendis_port, password=tendis_password, socket_timeout=5, socket_connect_timeout=2)
+
+    server_info = client.info(section='all')
     for item in server_info:
         if (item.startswith('cmdstat_') and item != 'cmdstat_unseen'):
             packet.append(ZabbixMetric(tendis_servicename, "tendis[%s]" % (item+"_calls"),server_info[item]['calls']))
@@ -48,19 +48,33 @@ def main():
             packet.append(ZabbixMetric(tendis_servicename, "tendis[%s]" % (item+"_state"),server_info[item]['state']))
             packet.append(ZabbixMetric(tendis_servicename, "tendis[%s]" % (item+"_lag"),server_info[item]['lag']))
             packet.append(ZabbixMetric(tendis_servicename, "tendis[%s]" % (item+"_binlog_lag"),server_info[item]['binlog_lag']))
+        elif (item == 'role'):
+            packet.append(ZabbixMetric(tendis_servicename, "tendis[%s]" % item,server_info[item]))
+            if (server_info[item] == 'master'):
+                packet.append(ZabbixMetric(tendis_servicename, "tendis[role_master]", 1))
+            else:
+                packet.append(ZabbixMetric(tendis_servicename, "tendis[role_master]", 0))
         else:
             packet.append(ZabbixMetric(tendis_servicename, "tendis[%s]" % item,server_info[item]))
 
     last_slowlog_info = client.slowlog_get(num=1)
     if last_slowlog_info:
-        packet.append(ZabbixMetric(tendis_servicename, "tendis[%s]" % 'last_slowlog_id',last_slowlog_info[0]['id']))
+        packet.append(ZabbixMetric(tendis_servicename, "tendis[%s]" % 'last_slowlog_id', last_slowlog_info[0]['id']))
 
     cluster_info = client.execute_command('cluster info')
     for key in cluster_info:
-        packet.append(ZabbixMetric(tendis_servicename, "tendis[%s]" % key,cluster_info[key]))
+        packet.append(ZabbixMetric(tendis_servicename, "tendis[%s]" % key, cluster_info[key]))
 
+    rocksdbstats_info_bytes = client.execute_command('info rocksdbstats')
+    rocksdbstats_info = str(rocksdbstats_info_bytes.decode("utf-8")).split("\r\n")
+    for line in rocksdbstats_info:
+        if (line.find("rocksdb.") == 0):
+            line = line.strip()
+            line = line.replace(" COUNT ", ".COUNT")
+            row = line.split(":")
+            packet.append(ZabbixMetric(tendis_servicename, "tendis[%s]" % row[0], row[1]))
 
-    #print (packet)
+    #print(packet)
     # Send packet to zabbix
     send_to_zabbix(packet, zabbix_host, zabbix_port)
 
