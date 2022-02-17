@@ -1,4 +1,4 @@
-epmmm performance monitor mysql(mysql, mariadb, percona), memcached, redis, tendis, numa cpu, linux tcp status for zabbix 2.4 above
+epmmm performance monitor mysql(mysql, mariadb, percona), memcached, redis, tendis, numa cpu, linux tcp status, linux disk stats for zabbix 2.4 above
 
 link：
 
