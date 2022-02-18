@@ -1,5 +1,6 @@
 epmmm performance monitor mysql(mysql, mariadb, percona), memcached, redis, tendis, numa cpu, linux tcp status, linux disk stats for zabbix 2.4 above
 
+This is easy to monitor one physical machine with multiple mysql instances, multiple redis instances, multiple memcached instances, multiple tenis instances.
 
 Authors: earl86
 
