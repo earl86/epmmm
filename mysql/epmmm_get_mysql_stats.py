@@ -20,6 +20,7 @@ import pymysql
 import argparse
 from pyzabbix.sender import ZabbixMetric, ZabbixSender
 import unicodedata
+import hashlib
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--servicehostname", action="store", dest='servicehostname', help="input the database servcie hostname", required=True)
@@ -374,26 +375,32 @@ def get_resaultdic():
             if (line.find("Mutex spin waits") == 0):
                 # Mutex spin waits 79626940, rounds 157459864, OS waits 698719
                 InnodbStatus['Innodb_mutex_spin_waits']=to_int(row[3])
-                InnodbStatus['Innodb_mutex_spin_rounds']=to_int(row[5])
+                InnodbStatus['Innodb_mutex_rounds']=to_int(row[5])
                 InnodbStatus['Innodb_mutex_os_waits']=to_int(row[8])
             elif (line.find("RW-shared spins") == 0 and line.find(";") > 0):
                 # RW-shared spins 3859028, OS waits 2100750; RW-excl spins 4641946, OS waits 1530310
-                InnodbStatus['Innodb_rw-shared-spin_waits']=to_int(row[2])
-                InnodbStatus['Innodb_rw-shared-os_waits']=to_int(row[5])
-                InnodbStatus['Innodb_rw-excl-spin_waits']=to_int(row[8])
-                InnodbStatus['Innodb_rw-excl-os_waits']=to_int(row[11])
+                InnodbStatus['Innodb_rw-shared_spins']=to_int(row[2])
+                InnodbStatus['Innodb_rw-shared_os_waits']=to_int(row[5])
+                InnodbStatus['Innodb_rw-excl_spins']=to_int(row[8])
+                InnodbStatus['Innodb_rw-excl_os_waits']=to_int(row[11])
             elif (line.find("RW-shared spins") == 0 and line.find("; RW-excl spins") < 0):
                 # Post 5.5.17 SHOW ENGINE INNODB STATUS syntax
                 # RW-shared spins 604733, rounds 8107431, OS waits 241268
-                InnodbStatus['Innodb_rw-shared-spin_waits']=to_int(row[2])
-                InnodbStatus['Innodb_rw-shared-spin_rounds']=to_int(row[4])
-                InnodbStatus['Innodb_rw-shared-os_waits']=to_int(row[7])
+                InnodbStatus['Innodb_rw-shared_spins']=to_int(row[2])
+                InnodbStatus['Innodb_rw-shared_rounds']=to_int(row[4])
+                InnodbStatus['Innodb_rw-shared_os_waits']=to_int(row[7])
             elif (line.find("RW-excl spins") == 0):
                 # Post 5.5.17 SHOW ENGINE INNODB STATUS syntax
                 # RW-excl spins 604733, rounds 8107431, OS waits 241268
-                InnodbStatus['Innodb_rw-excl-spin_waits']=to_int(row[2])
-                InnodbStatus['Innodb_rw-excl-spin_rounds']=to_int(row[4])
-                InnodbStatus['Innodb_rw-excl-os_waits']=to_int(row[7])
+                InnodbStatus['Innodb_rw-excl_spins']=to_int(row[2])
+                InnodbStatus['Innodb_rw-excl_rounds']=to_int(row[4])
+                InnodbStatus['Innodb_rw-excl_os_waits']=to_int(row[7])
+            elif (line.find("RW-sx spins") == 0):
+                # Post 5.5.17 SHOW ENGINE INNODB STATUS syntax
+                # RW-sx spins 1014, rounds 6472, OS waits 134
+                InnodbStatus['Innodb_rw-sx_spins']=to_int(row[2])
+                InnodbStatus['Innodb_rw-sx_rounds']=to_int(row[4])
+                InnodbStatus['Innodb_rw-sx_os_waits']=to_int(row[7])
             elif (line.find("History list length") == 0):
                 #History list length 2356
                 InnodbStatus['Innodb_trx_history_list_length']=to_int(row[3])

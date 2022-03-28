@@ -8,13 +8,13 @@
 # Authors: earl86
 
 USERNAME=zabbix
-PASSWORD=zabbix
-ZABBIXSERVER=192.168.1.1
+PASSWORD=zabbix@2014
+ZABBIXSERVER=10.17.13.2
 ZABBIXSERVER_PORT=10051
 
 HOSTNAME=`hostname`
-if [ "${HOSTNAME:0:4}" = "testhostname" ]; then
-   ZABBIXSERVER=192.168.1.10
+if [ "${HOSTNAME:0:4}" = "gwon" ]; then
+   ZABBIXSERVER=216.66.17.252
 fi
 
 SERVICEHOSTNAME=$1
@@ -37,7 +37,7 @@ if [ "$ITEM" = "mysqld_alive" ]; then
     exit
 elif [ "$ITEM" = "mysqld_cpu_use" ]; then
     if [ -n "$SERVICEUNIQ" ]; then
-        pid=`ps -ef |grep -v 'mysqld_safe' |grep "/$SERVICEUNIQ/" |grep -v 'zabbix-agent' |grep -v 'grep' |awk '{print $2}'`
+        pid=`ps -ef |grep 'mysqld ' |grep -v 'mysqld_safe' |grep "/$SERVICEUNIQ/" |grep -v ' rsync ' |grep -v 'zabbix-agent' |grep -v 'grep' |grep -v ' mysql ' |awk '{print $2}'`
     else
         pid=`sudo -u root /bin/netstat -lntp |grep $SERVICEIP:$SERVICEPORT |grep mysqld |awk '{ print $7}' |awk -F '/' '{ print $1 }'`
     fi
