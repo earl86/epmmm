@@ -62,30 +62,30 @@ def generate_packet(SERVICEHOSTNAME,resaultdic):
 
 
 def get_mysql_status(querysql):
-    conn = pymysql.connect(host=SERVICEIP, port=SERVICEPORT, user=USERNAME, passwd=PASSWORD,db='',charset="utf8")
     try:
+        conn = pymysql.connect(host=SERVICEIP, port=SERVICEPORT, user=USERNAME, passwd=PASSWORD,db='',charset="latin1",connect_timeout=3)
         cursor = conn.cursor()
         cursor.execute(querysql)
         result = cursor.fetchall()
-        return result
-    except Exception as e:
-        logger.info('epmmm %s, %s, %s!', SERVICEHOSTNAME, e, querysql)
-    finally:
         cursor.close()
         conn.close()
+    except Exception as e:
+        logger.info('epmmm %s, %s, %s!', SERVICEHOSTNAME, e, querysql)
+    else:
+        return result
 
 def get_mysql_status_dic(querysql):
-    conn = pymysql.connect(host=SERVICEIP, port=SERVICEPORT, user=USERNAME, passwd=PASSWORD,db='',charset="utf8")
     try:
+        conn = pymysql.connect(host=SERVICEIP, port=SERVICEPORT, user=USERNAME, passwd=PASSWORD,db='',charset="latin1",connect_timeout=3)
         cursor = conn.cursor(pymysql.cursors.DictCursor)
         cursor.execute(querysql)
         result = cursor.fetchall()
-        return result
-    except Exception as e:
-        logger.info('epmmm %s, %s, %s!', SERVICEHOSTNAME, e, querysql)
-    finally:
         cursor.close()
         conn.close()
+    except Exception as e:
+        logger.info('epmmm %s, %s, %s!', SERVICEHOSTNAME, e, querysql)
+    else:
+        return result
 
 def is_number(s):
     try:
@@ -165,6 +165,7 @@ def get_resaultdic():
         for resault in resaults:
             SlaveStatus['Master_Log_File']=to_int(resault['Master_Log_File'].split(".")[1])
             SlaveStatus['Relay_Master_Log_File']=to_int(resault['Relay_Master_Log_File'].split(".")[1])
+            SlaveStatus['Relay_Log_File']=to_int(resault['Relay_Log_File'].split(".")[1])
             if(resault['Slave_IO_Running']=='Yes'):
                 SlaveStatus['Slave_IO_Running']=1
             else:
@@ -177,10 +178,16 @@ def get_resaultdic():
 
             SlaveStatus['Read_Master_Log_Pos']=resault['Read_Master_Log_Pos']
             SlaveStatus['Exec_Master_Log_Pos']=resault['Exec_Master_Log_Pos']
+            SlaveStatus['Relay_Log_Pos']=resault['Relay_Log_Pos']
+            SlaveStatus['Relay_Log_Space']=resault['Relay_Log_Space']
             SlaveStatus['Seconds_Behind_Master']=resault['Seconds_Behind_Master']
-            SlaveStatus['slave_lag_binlog']=SlaveStatus['Master_Log_File']-SlaveStatus['Relay_Master_Log_File']
-            SlaveStatus['Relay_Log_Pos']=resault['Relay_Log_Pos']
-            SlaveStatus['Relay_Log_Pos']=resault['Relay_Log_Pos']
+
+        SlaveStatus['slave_lag_binlog']=SlaveStatus['Master_Log_File']-SlaveStatus['Relay_Master_Log_File']
+
+        if(SlaveStatus['slave_lag_binlog']==0):
+            SlaveStatus['slave_binlog_pos_lag']=SlaveStatus['Read_Master_Log_Pos']-SlaveStatus['Exec_Master_Log_Pos']
+        else:
+            SlaveStatus['slave_binlog_pos_lag']=(SlaveStatus['slave_lag_binlog']-1)*1073748717+SlaveStatus['Read_Master_Log_Pos']+(1073748717-SlaveStatus['Exec_Master_Log_Pos'])
 
 
     resaults=get_mysql_status('show global status;')
