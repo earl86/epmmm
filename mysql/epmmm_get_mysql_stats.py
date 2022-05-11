@@ -135,7 +135,7 @@ def get_resaultdic():
     MysqlStatus['agent_OK']=1
 
     resaults=get_mysql_status_dic('show master status;')
-    if (resaults is not None):
+    if resaults:
         for resault in resaults:
             MasterStatus['Binlog_position'] = resault['Position']
             MasterStatus['Binlog_file'] = resault['File']
@@ -147,7 +147,7 @@ def get_resaultdic():
     resaults=get_mysql_status('show binary logs;')
     MasterStatus['Binlog_count']=0
     MasterStatus['Binlog_total_size']=0
-    if (resaults is not None):
+    if resaults:
         for resault in resaults:
             MasterStatus['Binlog_count'] += 1
             MasterStatus['Binlog_total_size'] += resault[1]
@@ -155,13 +155,13 @@ def get_resaultdic():
 
     resaults=get_mysql_status('show slave hosts;')
     MasterStatus['Slave_count']=0
-    if (resaults is not None):
+    if resaults:
         for resault in resaults:
             MasterStatus['Slave_count'] += 1
 
     resaults=get_mysql_status_dic('show slave status;')
     # Scale slave_running and slave_stopped relative to the slave lag.
-    if (resaults is not None):
+    if resaults:
         for resault in resaults:
             SlaveStatus['Master_Log_File']=to_int(resault['Master_Log_File'].split(".")[1])
             SlaveStatus['Relay_Master_Log_File']=to_int(resault['Relay_Master_Log_File'].split(".")[1])
@@ -191,7 +191,7 @@ def get_resaultdic():
 
 
     resaults=get_mysql_status('show global status;')
-    if (resaults is not None):
+    if resaults:
         MysqlStatus['alive']=1
         for resault in resaults:
             if ( is_number(resault[1])):
@@ -207,7 +207,7 @@ def get_resaultdic():
 
 
     resaults=get_mysql_status('show global variables;')
-    if (resaults is not None):
+    if resaults:
         for resault in resaults:
             if(resault[0]=='max_connections'):
                 GlobalVariables['max_connections']=to_int(resault[1])
@@ -373,7 +373,7 @@ def get_resaultdic():
 
 
     resaults=get_mysql_status('show engine innodb status;')
-    if (resaults is not None):
+    if resaults:
         lines=resaults[0][2].split("\n")
         for line in lines:
             line=line.strip()
@@ -640,13 +640,13 @@ def get_resaultdic():
 
 
     resaults=get_mysql_status('SELECT SUM(compress_time) AS compress_time, SUM(uncompress_time) AS uncompress_time FROM information_schema.INNODB_CMP;')
-    if (resaults is not None):
+    if resaults:
         for resault in resaults:
             InnodbStatus['Innodb_compress_time']   = int(resault[0])
             InnodbStatus['Innodb_uncompress_time'] = int(resault[1])
 
     resaults=get_mysql_status('SELECT LOWER(REPLACE(trx_state, " ", "_")) AS state, count(*) AS cnt from information_schema.INNODB_TRX GROUP BY state ORDER BY state;')
-    if (resaults is not None):
+    if resaults:
         for resault in resaults:
             InnodbStatus['Innodb_trx_' + resault[0]] = resault[1]
 
