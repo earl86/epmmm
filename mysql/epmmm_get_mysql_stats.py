@@ -671,7 +671,6 @@ def main():
         packet = generate_packet(SERVICENAME,resaultdic)
         #print(packet)
         send_to_zabbix(packet, ZABBIX_SERVER, ZABBIX_SERVER_PORT)
-        send_to_zabbix(packet, ZABBIX_SERVER_NEW, ZABBIX_SERVER_PORT)
     except Exception as e:
         logger.info('epmmm %s, %s!', SERVICENAME, e)
         logger.info(packet)
