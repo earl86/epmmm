@@ -1,7 +1,7 @@
 #!/bin/sh
 # The wrapper for zabbix python3 script.
 # It runs the script every 30 seconds. and parses the cache file on each following run.
-# Test the script using: zabbix_get -s 192.168.1.200 -p 10050 -k "epmmm.mysql.check[your_mysqlservice_hostname,192.168.1.200,3306,check]"
+# Test the script using: zabbix_get -s 192.168.1.200 -p 10050 -k "epmmm.mysql.check[your_mysqlservice_name,192.168.1.200,3306,check]"
 # The script need zabbix_sender and Python Running Environment
 # The default monitor mysql port is 3306, if need to monitor other port, you need to add the Macros:{$MYSQL_PORT}=xxxx on the monitor Host
 # Remember to change the USERNAME PASSWORD for your's.
@@ -9,15 +9,9 @@
 
 USERNAME=zabbix
 PASSWORD=zabbix
-ZABBIXSERVER=192.168.1.10
-ZABBIXSERVER_PORT=10051
 
-HOSTNAME=`hostname`
-if [ "${HOSTNAME:0:4}" = "gwon" ]; then
-   ZABBIXSERVER=10.10.10.10
-fi
 
-SERVICEHOSTNAME=$1
+SERVICENAME=$1
 SERVICEIP=$2
 SERVICEPORT=$3
 ITEM=$4
@@ -25,7 +19,7 @@ SERVICEUNIQ=$5
 
 DIR=`dirname $0`
 
-CMD="python3 $DIR/epmmm_get_mysql_stats.py --servicehostname $SERVICEHOSTNAME --serviceip $SERVICEIP --serviceport $SERVICEPORT --username $USERNAME --password $PASSWORD --zabbixserver $ZABBIXSERVER --zabbixserver_port $ZABBIXSERVER_PORT"
+CMD="python3 $DIR/epmmm_get_mysql_stats.py --servicename $SERVICENAME --serviceip $SERVICEIP --serviceport $SERVICEPORT --username $USERNAME --password $PASSWORD"
 
 if [ "$ITEM" = "mysqld_alive" ]; then
     RES=`HOME=~zabbix mysql -h $SERVICEIP -P $SERVICEPORT -u$USERNAME -p$PASSWORD -N -e 'select 1 from dual;' 2>/dev/null`
