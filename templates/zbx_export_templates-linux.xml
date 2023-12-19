@@ -1,0 +1,1661 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zabbix_export>
+    <version>5.0</version>
+    <date>2023-11-23T06:55:20Z</date>
+    <groups>
+        <group>
+            <name>Template EPMMM NUMA CPU INFO</name>
+        </group>
+        <group>
+            <name>Templates</name>
+        </group>
+    </groups>
+    <templates>
+        <template>
+            <template>Template epmmm Linux Disk Performance</template>
+            <name>Template epmmm Linux Disk Performance</name>
+            <description>need python version 3+&#13;
+need sysstat-9.0.4-33.el6_9.1.x86_64 +&#13;
+yum update sysstat&#13;
+pip3 install argparse&#13;
+pip3 install py-zabbix&#13;
+/etc/init.d/zabbix-agentd restart&#13;
+systemctl restart zabbix-agentd</description>
+            <groups>
+                <group>
+                    <name>Templates</name>
+                </group>
+            </groups>
+            <applications>
+                <application>
+                    <name>Disk Performance</name>
+                </application>
+            </applications>
+            <items>
+                <item>
+                    <name>epmmm get diskstat info</name>
+                    <key>epmmm.get.diskstat.info[{HOST.NAME}]</key>
+                    <delay>15</delay>
+                    <history>30d</history>
+                    <applications>
+                        <application>
+                            <name>Disk Performance</name>
+                        </application>
+                    </applications>
+                </item>
+            </items>
+            <discovery_rules>
+                <discovery_rule>
+                    <name>Disk discovery</name>
+                    <key>custom.vfs.discover_disks</key>
+                    <delay>300</delay>
+                    <lifetime>7d</lifetime>
+                    <item_prototypes>
+                        <item_prototype>
+                            <name>Disk:$1:IO:Currently Active</name>
+                            <type>TRAP</type>
+                            <key>custom.vfs.dev.io.active[{#DEVICENAME}]</key>
+                            <delay>0</delay>
+                            <history>30d</history>
+                            <units>io</units>
+                            <description>Field #12&#13;
+Number of I/Os currently in progress.&#13;
+The only field that should go to zero. Incremented as requests are given to appropriate struct request_queue and decremented as they finish.</description>
+                            <applications>
+                                <application>
+                                    <name>Disk Performance</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Disk:$1:IO:ms</name>
+                            <type>TRAP</type>
+                            <key>custom.vfs.dev.io.ms[{#DEVICENAME}]</key>
+                            <delay>0</delay>
+                            <history>30d</history>
+                            <units>ms</units>
+                            <description>Field #13&#13;
+Number of milliseconds spent doing I/Os. This field increases so long as field #12 (custom.vfs.dev.io.active) is nonzero.</description>
+                            <applications>
+                                <application>
+                                    <name>Disk Performance</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>CHANGE_PER_SECOND</type>
+                                    <params/>
+                                </step>
+                            </preprocessing>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Disk:$1:IOSTAT:avgqu-sz</name>
+                            <type>TRAP</type>
+                            <key>custom.vfs.dev.iostat.avgqu-sz[{#DEVICENAME}]</key>
+                            <delay>0</delay>
+                            <history>30d</history>
+                            <value_type>FLOAT</value_type>
+                            <description>Field #2&#13;
+iostat -y -x 5 1 &#13;
+rrqm/s</description>
+                            <applications>
+                                <application>
+                                    <name>Disk Performance</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Disk:$1:IOSTAT:avgrq-sz</name>
+                            <type>TRAP</type>
+                            <key>custom.vfs.dev.iostat.avgrq-sz[{#DEVICENAME}]</key>
+                            <delay>0</delay>
+                            <history>30d</history>
+                            <value_type>FLOAT</value_type>
+                            <description>Field #2&#13;
+iostat -y -x 5 1 &#13;
+rrqm/s</description>
+                            <applications>
+                                <application>
+                                    <name>Disk Performance</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Disk:$1:IOSTAT:await</name>
+                            <type>TRAP</type>
+                            <key>custom.vfs.dev.iostat.await[{#DEVICENAME}]</key>
+                            <delay>0</delay>
+                            <history>30d</history>
+                            <value_type>FLOAT</value_type>
+                            <units>ms</units>
+                            <description>Field #2&#13;
+iostat -y -x 5 1 &#13;
+await</description>
+                            <applications>
+                                <application>
+                                    <name>Disk Performance</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Disk:$1:IOSTAT:rkB</name>
+                            <type>TRAP</type>
+                            <key>custom.vfs.dev.iostat.rkB[{#DEVICENAME}]</key>
+                            <delay>0</delay>
+                            <history>30d</history>
+                            <value_type>FLOAT</value_type>
+                            <units>/s</units>
+                            <description>Field #2&#13;
+iostat -y -x -k 5 1 &#13;
+rrqm/s</description>
+                            <applications>
+                                <application>
+                                    <name>Disk Performance</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Disk:$1:IOSTAT:rrqm</name>
+                            <type>TRAP</type>
+                            <key>custom.vfs.dev.iostat.rrqm[{#DEVICENAME}]</key>
+                            <delay>0</delay>
+                            <history>30d</history>
+                            <value_type>FLOAT</value_type>
+                            <units>/s</units>
+                            <description>Field #2&#13;
+iostat -y -x 5 1 &#13;
+rrqm/s</description>
+                            <applications>
+                                <application>
+                                    <name>Disk Performance</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Disk:$1:IOSTAT:r</name>
+                            <type>TRAP</type>
+                            <key>custom.vfs.dev.iostat.r[{#DEVICENAME}]</key>
+                            <delay>0</delay>
+                            <history>30d</history>
+                            <value_type>FLOAT</value_type>
+                            <units>/s</units>
+                            <description>Field #2&#13;
+iostat -y -x 5 1 &#13;
+rrqm/s</description>
+                            <applications>
+                                <application>
+                                    <name>Disk Performance</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Disk:$1:IOSTAT:r_await</name>
+                            <type>TRAP</type>
+                            <key>custom.vfs.dev.iostat.r_await[{#DEVICENAME}]</key>
+                            <delay>0</delay>
+                            <history>30d</history>
+                            <value_type>FLOAT</value_type>
+                            <units>ms</units>
+                            <description>Field #2&#13;
+iostat -y -x 5 1 &#13;
+rrqm/s</description>
+                            <applications>
+                                <application>
+                                    <name>Disk Performance</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Disk:$1:IOSTAT:svctm</name>
+                            <type>TRAP</type>
+                            <key>custom.vfs.dev.iostat.svctm[{#DEVICENAME}]</key>
+                            <delay>0</delay>
+                            <history>30d</history>
+                            <value_type>FLOAT</value_type>
+                            <units>ms</units>
+                            <description>Field #2&#13;
+iostat -y -x 5 1 &#13;
+await</description>
+                            <applications>
+                                <application>
+                                    <name>Disk Performance</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Disk:$1:IOSTAT:util</name>
+                            <type>TRAP</type>
+                            <key>custom.vfs.dev.iostat.util[{#DEVICENAME}]</key>
+                            <delay>0</delay>
+                            <history>30d</history>
+                            <value_type>FLOAT</value_type>
+                            <units>%</units>
+                            <description>Field #2&#13;
+iostat -y -x 5 1 &#13;
+await</description>
+                            <applications>
+                                <application>
+                                    <name>Disk Performance</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Disk:$1:IOSTAT:wkB</name>
+                            <type>TRAP</type>
+                            <key>custom.vfs.dev.iostat.wkB[{#DEVICENAME}]</key>
+                            <delay>0</delay>
+                            <history>30d</history>
+                            <value_type>FLOAT</value_type>
+                            <units>/s</units>
+                            <description>Field #2&#13;
+iostat -y -x -k 5 1 &#13;
+rrqm/s</description>
+                            <applications>
+                                <application>
+                                    <name>Disk Performance</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Disk:$1:IOSTAT:wrqm</name>
+                            <type>TRAP</type>
+                            <key>custom.vfs.dev.iostat.wrqm[{#DEVICENAME}]</key>
+                            <delay>0</delay>
+                            <history>30d</history>
+                            <value_type>FLOAT</value_type>
+                            <units>/s</units>
+                            <description>Field #2&#13;
+iostat -y -x 5 1 &#13;
+rrqm/s</description>
+                            <applications>
+                                <application>
+                                    <name>Disk Performance</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Disk:$1:IOSTAT:w</name>
+                            <type>TRAP</type>
+                            <key>custom.vfs.dev.iostat.w[{#DEVICENAME}]</key>
+                            <delay>0</delay>
+                            <history>30d</history>
+                            <value_type>FLOAT</value_type>
+                            <units>/s</units>
+                            <description>Field #2&#13;
+iostat -y -x 5 1 &#13;
+rrqm/s</description>
+                            <applications>
+                                <application>
+                                    <name>Disk Performance</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Disk:$1:IOSTAT:w_await</name>
+                            <type>TRAP</type>
+                            <key>custom.vfs.dev.iostat.w_await[{#DEVICENAME}]</key>
+                            <delay>0</delay>
+                            <history>30d</history>
+                            <value_type>FLOAT</value_type>
+                            <units>ms</units>
+                            <description>Field #2&#13;
+iostat -y -x 5 1 &#13;
+rrqm/s</description>
+                            <applications>
+                                <application>
+                                    <name>Disk Performance</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Disk:$1:Read:Merged</name>
+                            <type>TRAP</type>
+                            <key>custom.vfs.dev.read.merged[{#DEVICENAME}]</key>
+                            <delay>0</delay>
+                            <history>30d</history>
+                            <units>Ops/s</units>
+                            <description>Field #5&#13;
+Number of reads merged.&#13;
+Reads and writes which are adjacent to each other may be merged for efficiency. Thus two 4K reads may become one 8K read before it is ultimately handed to the disk, and so it will be counted (and queued) as only one I/O.  This field lets you know how often this was done.</description>
+                            <applications>
+                                <application>
+                                    <name>Disk Performance</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>CHANGE_PER_SECOND</type>
+                                    <params/>
+                                </step>
+                            </preprocessing>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Disk:$1:Read:ms</name>
+                            <type>TRAP</type>
+                            <key>custom.vfs.dev.read.ms[{#DEVICENAME}]</key>
+                            <delay>0</delay>
+                            <history>30d</history>
+                            <units>ms</units>
+                            <description>Field #7&#13;
+Number of milliseconds spent reading&#13;
+This is the total number of milliseconds spent by all reads (as measured from __make_request() to end_that_request_last()).</description>
+                            <applications>
+                                <application>
+                                    <name>Disk Performance</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>CHANGE_PER_SECOND</type>
+                                    <params/>
+                                </step>
+                            </preprocessing>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Disk:$1:Read:Ops per second</name>
+                            <type>TRAP</type>
+                            <key>custom.vfs.dev.read.ops[{#DEVICENAME}]</key>
+                            <delay>0</delay>
+                            <history>30d</history>
+                            <units>ops/s</units>
+                            <description>Field #4&#13;
+This is the total number of reads completed successfully.</description>
+                            <applications>
+                                <application>
+                                    <name>Disk Performance</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>CHANGE_PER_SECOND</type>
+                                    <params/>
+                                </step>
+                            </preprocessing>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Disk:$1:Read:Bytes/sec</name>
+                            <type>TRAP</type>
+                            <key>custom.vfs.dev.read.sectors[{#DEVICENAME}]</key>
+                            <delay>0</delay>
+                            <history>30d</history>
+                            <units>B/sec</units>
+                            <description>Field #6&#13;
+This is the total number of sectors read successfully.</description>
+                            <applications>
+                                <application>
+                                    <name>Disk Performance</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>CHANGE_PER_SECOND</type>
+                                    <params/>
+                                </step>
+                                <step>
+                                    <type>MULTIPLIER</type>
+                                    <params>512</params>
+                                </step>
+                            </preprocessing>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Disk:$1:sar-d-p:avgqu-sz</name>
+                            <type>TRAP</type>
+                            <key>custom.vfs.dev.sar-d-p.avgqu-sz[{#DEVICENAME}]</key>
+                            <delay>0</delay>
+                            <history>30d</history>
+                            <value_type>FLOAT</value_type>
+                            <description>sar -d -p 3 1</description>
+                            <applications>
+                                <application>
+                                    <name>Disk Performance</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Disk:$1:sar-d-p:avgrq-sz</name>
+                            <type>TRAP</type>
+                            <key>custom.vfs.dev.sar-d-p.avgrq-sz[{#DEVICENAME}]</key>
+                            <delay>0</delay>
+                            <history>30d</history>
+                            <value_type>FLOAT</value_type>
+                            <description>sar -d -p 3 1</description>
+                            <applications>
+                                <application>
+                                    <name>Disk Performance</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Disk:$1:sar-d-p:await</name>
+                            <type>TRAP</type>
+                            <key>custom.vfs.dev.sar-d-p.await[{#DEVICENAME}]</key>
+                            <delay>0</delay>
+                            <history>30d</history>
+                            <value_type>FLOAT</value_type>
+                            <units>ms</units>
+                            <description>sar -d -p 3 1</description>
+                            <applications>
+                                <application>
+                                    <name>Disk Performance</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Disk:$1:sar-d-p:rd_sec</name>
+                            <type>TRAP</type>
+                            <key>custom.vfs.dev.sar-d-p.rd_sec[{#DEVICENAME}]</key>
+                            <delay>0</delay>
+                            <history>30d</history>
+                            <value_type>FLOAT</value_type>
+                            <units>sectors/s</units>
+                            <description>sar -d -p 3 1</description>
+                            <applications>
+                                <application>
+                                    <name>Disk Performance</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Disk:$1:sar-d-p:svctm</name>
+                            <type>TRAP</type>
+                            <key>custom.vfs.dev.sar-d-p.svctm[{#DEVICENAME}]</key>
+                            <delay>0</delay>
+                            <history>30d</history>
+                            <value_type>FLOAT</value_type>
+                            <units>ms</units>
+                            <description>sar -d -p 3 1</description>
+                            <applications>
+                                <application>
+                                    <name>Disk Performance</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Disk:$1:sar-d-p:tps</name>
+                            <type>TRAP</type>
+                            <key>custom.vfs.dev.sar-d-p.tps[{#DEVICENAME}]</key>
+                            <delay>0</delay>
+                            <history>30d</history>
+                            <value_type>FLOAT</value_type>
+                            <description>sar -d -p 3 1</description>
+                            <applications>
+                                <application>
+                                    <name>Disk Performance</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Disk:$1:sar-d-p:util</name>
+                            <type>TRAP</type>
+                            <key>custom.vfs.dev.sar-d-p.util[{#DEVICENAME}]</key>
+                            <delay>0</delay>
+                            <history>30d</history>
+                            <value_type>FLOAT</value_type>
+                            <units>%</units>
+                            <description>sar -d -p 3 1</description>
+                            <applications>
+                                <application>
+                                    <name>Disk Performance</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Disk:$1:sar-d-p:wr_sec</name>
+                            <type>TRAP</type>
+                            <key>custom.vfs.dev.sar-d-p.wr_sec[{#DEVICENAME}]</key>
+                            <delay>0</delay>
+                            <history>30d</history>
+                            <value_type>FLOAT</value_type>
+                            <units>sectors/s</units>
+                            <description>sar -d -p 3 1</description>
+                            <applications>
+                                <application>
+                                    <name>Disk Performance</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Disk:$1:IO:Weight:ms</name>
+                            <type>TRAP</type>
+                            <key>custom.vfs.dev.weight.io.ms[{#DEVICENAME}]</key>
+                            <delay>0</delay>
+                            <history>30d</history>
+                            <units>ms</units>
+                            <description>Field #14&#13;
+Weighted number of milliseconds spent doing I/Os.&#13;
+This field is incremented at each I/O start, I/O completion, I/O merge, or read of these stats by the number of I/Os in progress (field 12) times the number of milliseconds spent doing I/O since the last update of this field.  This can provide an easy measure of both I/O completion time and the backlog that may be accumulating.</description>
+                            <applications>
+                                <application>
+                                    <name>Disk Performance</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>CHANGE_PER_SECOND</type>
+                                    <params/>
+                                </step>
+                            </preprocessing>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Disk:$1:Write:Merged</name>
+                            <type>TRAP</type>
+                            <key>custom.vfs.dev.write.merged[{#DEVICENAME}]</key>
+                            <delay>0</delay>
+                            <history>30d</history>
+                            <units>Ops/s</units>
+                            <description>Field #9&#13;
+Number of writes merged.&#13;
+Reads and writes which are adjacent to each other may be merged for efficiency. Thus two 4K reads may become one 8K read before it is ultimately handed to the disk, and so it will be counted (and queued) as only one I/O.  This field lets you know how often this was done.</description>
+                            <applications>
+                                <application>
+                                    <name>Disk Performance</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>CHANGE_PER_SECOND</type>
+                                    <params/>
+                                </step>
+                            </preprocessing>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Disk:$1:Write:ms</name>
+                            <type>TRAP</type>
+                            <key>custom.vfs.dev.write.ms[{#DEVICENAME}]</key>
+                            <delay>0</delay>
+                            <history>30d</history>
+                            <units>ms</units>
+                            <description>Field #11&#13;
+Number of milliseconds spent writing.&#13;
+This is the total number of milliseconds spent by all writes (as measured from __make_request() to end_that_request_last()).</description>
+                            <applications>
+                                <application>
+                                    <name>Disk Performance</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>CHANGE_PER_SECOND</type>
+                                    <params/>
+                                </step>
+                            </preprocessing>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Disk:$1:Write:Ops per second</name>
+                            <type>TRAP</type>
+                            <key>custom.vfs.dev.write.ops[{#DEVICENAME}]</key>
+                            <delay>0</delay>
+                            <history>30d</history>
+                            <units>ops/s</units>
+                            <description>Field #8&#13;
+This is the total number of writes completed successfully.</description>
+                            <applications>
+                                <application>
+                                    <name>Disk Performance</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>CHANGE_PER_SECOND</type>
+                                    <params/>
+                                </step>
+                            </preprocessing>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Disk:$1:Write:Bytes/sec</name>
+                            <type>TRAP</type>
+                            <key>custom.vfs.dev.write.sectors[{#DEVICENAME}]</key>
+                            <delay>0</delay>
+                            <history>30d</history>
+                            <units>B/sec</units>
+                            <description>Field #10&#13;
+This is the total number of sectors written successfully.</description>
+                            <applications>
+                                <application>
+                                    <name>Disk Performance</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>CHANGE_PER_SECOND</type>
+                                    <params/>
+                                </step>
+                                <step>
+                                    <type>MULTIPLIER</type>
+                                    <params>512</params>
+                                </step>
+                            </preprocessing>
+                        </item_prototype>
+                    </item_prototypes>
+                    <graph_prototypes>
+                        <graph_prototype>
+                            <name>Disk {#DEVICENAME} - Bytes/second</name>
+                            <ymin_type_1>FIXED</ymin_type_1>
+                            <graph_items>
+                                <graph_item>
+                                    <drawtype>GRADIENT_LINE</drawtype>
+                                    <color>00C800</color>
+                                    <yaxisside>RIGHT</yaxisside>
+                                    <item>
+                                        <host>Template epmmm Linux Disk Performance</host>
+                                        <key>custom.vfs.dev.read.sectors[{#DEVICENAME}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>1</sortorder>
+                                    <drawtype>GRADIENT_LINE</drawtype>
+                                    <color>C80000</color>
+                                    <item>
+                                        <host>Template epmmm Linux Disk Performance</host>
+                                        <key>custom.vfs.dev.write.sectors[{#DEVICENAME}]</key>
+                                    </item>
+                                </graph_item>
+                            </graph_items>
+                        </graph_prototype>
+                        <graph_prototype>
+                            <name>Disk {#DEVICENAME} - iostat -y -x -k 2 1</name>
+                            <graph_items>
+                                <graph_item>
+                                    <color>960000</color>
+                                    <item>
+                                        <host>Template epmmm Linux Disk Performance</host>
+                                        <key>custom.vfs.dev.iostat.util[{#DEVICENAME}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>1</sortorder>
+                                    <color>66FF00</color>
+                                    <item>
+                                        <host>Template epmmm Linux Disk Performance</host>
+                                        <key>custom.vfs.dev.iostat.avgqu-sz[{#DEVICENAME}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>2</sortorder>
+                                    <color>C80000</color>
+                                    <item>
+                                        <host>Template epmmm Linux Disk Performance</host>
+                                        <key>custom.vfs.dev.iostat.avgrq-sz[{#DEVICENAME}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>3</sortorder>
+                                    <color>C800C8</color>
+                                    <item>
+                                        <host>Template epmmm Linux Disk Performance</host>
+                                        <key>custom.vfs.dev.iostat.r[{#DEVICENAME}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>4</sortorder>
+                                    <color>11C2EE</color>
+                                    <item>
+                                        <host>Template epmmm Linux Disk Performance</host>
+                                        <key>custom.vfs.dev.iostat.rrqm[{#DEVICENAME}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>5</sortorder>
+                                    <color>C8C800</color>
+                                    <item>
+                                        <host>Template epmmm Linux Disk Performance</host>
+                                        <key>custom.vfs.dev.iostat.rkB[{#DEVICENAME}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>6</sortorder>
+                                    <color>C8C8C8</color>
+                                    <item>
+                                        <host>Template epmmm Linux Disk Performance</host>
+                                        <key>custom.vfs.dev.iostat.r_await[{#DEVICENAME}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>7</sortorder>
+                                    <yaxisside>RIGHT</yaxisside>
+                                    <item>
+                                        <host>Template epmmm Linux Disk Performance</host>
+                                        <key>custom.vfs.dev.iostat.svctm[{#DEVICENAME}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>8</sortorder>
+                                    <color>000096</color>
+                                    <yaxisside>RIGHT</yaxisside>
+                                    <item>
+                                        <host>Template epmmm Linux Disk Performance</host>
+                                        <key>custom.vfs.dev.iostat.w[{#DEVICENAME}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>9</sortorder>
+                                    <color>960096</color>
+                                    <yaxisside>RIGHT</yaxisside>
+                                    <item>
+                                        <host>Template epmmm Linux Disk Performance</host>
+                                        <key>custom.vfs.dev.iostat.wrqm[{#DEVICENAME}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>10</sortorder>
+                                    <color>CC8F33</color>
+                                    <yaxisside>RIGHT</yaxisside>
+                                    <item>
+                                        <host>Template epmmm Linux Disk Performance</host>
+                                        <key>custom.vfs.dev.iostat.wkB[{#DEVICENAME}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>11</sortorder>
+                                    <color>111111</color>
+                                    <item>
+                                        <host>Template epmmm Linux Disk Performance</host>
+                                        <key>custom.vfs.dev.iostat.w_await[{#DEVICENAME}]</key>
+                                    </item>
+                                </graph_item>
+                            </graph_items>
+                        </graph_prototype>
+                        <graph_prototype>
+                            <name>Disk {#DEVICENAME} - Merged</name>
+                            <graph_items>
+                                <graph_item>
+                                    <color>00C800</color>
+                                    <item>
+                                        <host>Template epmmm Linux Disk Performance</host>
+                                        <key>custom.vfs.dev.read.merged[{#DEVICENAME}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>1</sortorder>
+                                    <color>C80000</color>
+                                    <item>
+                                        <host>Template epmmm Linux Disk Performance</host>
+                                        <key>custom.vfs.dev.write.merged[{#DEVICENAME}]</key>
+                                    </item>
+                                </graph_item>
+                            </graph_items>
+                        </graph_prototype>
+                        <graph_prototype>
+                            <name>Disk {#DEVICENAME} - Ops/second</name>
+                            <graph_items>
+                                <graph_item>
+                                    <color>00C800</color>
+                                    <item>
+                                        <host>Template epmmm Linux Disk Performance</host>
+                                        <key>custom.vfs.dev.read.ops[{#DEVICENAME}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>1</sortorder>
+                                    <color>C80000</color>
+                                    <item>
+                                        <host>Template epmmm Linux Disk Performance</host>
+                                        <key>custom.vfs.dev.write.ops[{#DEVICENAME}]</key>
+                                    </item>
+                                </graph_item>
+                            </graph_items>
+                        </graph_prototype>
+                        <graph_prototype>
+                            <name>Disk {#DEVICENAME} - Overview</name>
+                            <graph_items>
+                                <graph_item>
+                                    <color>00C8C8</color>
+                                    <calc_fnc>ALL</calc_fnc>
+                                    <item>
+                                        <host>Template epmmm Linux Disk Performance</host>
+                                        <key>custom.vfs.dev.io.active[{#DEVICENAME}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>1</sortorder>
+                                    <color>C8C800</color>
+                                    <yaxisside>RIGHT</yaxisside>
+                                    <calc_fnc>ALL</calc_fnc>
+                                    <item>
+                                        <host>Template epmmm Linux Disk Performance</host>
+                                        <key>custom.vfs.dev.read.sectors[{#DEVICENAME}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>2</sortorder>
+                                    <color>960000</color>
+                                    <calc_fnc>ALL</calc_fnc>
+                                    <item>
+                                        <host>Template epmmm Linux Disk Performance</host>
+                                        <key>custom.vfs.dev.read.merged[{#DEVICENAME}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>3</sortorder>
+                                    <color>C8C8C8</color>
+                                    <calc_fnc>ALL</calc_fnc>
+                                    <item>
+                                        <host>Template epmmm Linux Disk Performance</host>
+                                        <key>custom.vfs.dev.read.ops[{#DEVICENAME}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>4</sortorder>
+                                    <yaxisside>RIGHT</yaxisside>
+                                    <calc_fnc>ALL</calc_fnc>
+                                    <item>
+                                        <host>Template epmmm Linux Disk Performance</host>
+                                        <key>custom.vfs.dev.write.sectors[{#DEVICENAME}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>5</sortorder>
+                                    <color>960096</color>
+                                    <calc_fnc>ALL</calc_fnc>
+                                    <item>
+                                        <host>Template epmmm Linux Disk Performance</host>
+                                        <key>custom.vfs.dev.write.merged[{#DEVICENAME}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>6</sortorder>
+                                    <color>000096</color>
+                                    <calc_fnc>ALL</calc_fnc>
+                                    <item>
+                                        <host>Template epmmm Linux Disk Performance</host>
+                                        <key>custom.vfs.dev.write.ops[{#DEVICENAME}]</key>
+                                    </item>
+                                </graph_item>
+                            </graph_items>
+                        </graph_prototype>
+                        <graph_prototype>
+                            <name>Disk {#DEVICENAME} - sar-d-p_tps_await_util</name>
+                            <ymin_type_1>FIXED</ymin_type_1>
+                            <graph_items>
+                                <graph_item>
+                                    <color>0000C8</color>
+                                    <item>
+                                        <host>Template epmmm Linux Disk Performance</host>
+                                        <key>custom.vfs.dev.sar-d-p.tps[{#DEVICENAME}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>1</sortorder>
+                                    <color>C800C8</color>
+                                    <yaxisside>RIGHT</yaxisside>
+                                    <item>
+                                        <host>Template epmmm Linux Disk Performance</host>
+                                        <key>custom.vfs.dev.sar-d-p.await[{#DEVICENAME}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>2</sortorder>
+                                    <color>00EE00</color>
+                                    <item>
+                                        <host>Template epmmm Linux Disk Performance</host>
+                                        <key>custom.vfs.dev.sar-d-p.util[{#DEVICENAME}]</key>
+                                    </item>
+                                </graph_item>
+                            </graph_items>
+                        </graph_prototype>
+                    </graph_prototypes>
+                </discovery_rule>
+            </discovery_rules>
+            <screens>
+                <screen>
+                    <name>disk performance</name>
+                    <hsize>1</hsize>
+                    <vsize>1</vsize>
+                    <screen_items>
+                        <screen_item>
+                            <resourcetype>20</resourcetype>
+                            <style>0</style>
+                            <resource>
+                                <name>Disk {#DEVICENAME} - iostat -y -x -k 2 1</name>
+                                <host>Template epmmm Linux Disk Performance</host>
+                            </resource>
+                            <width>500</width>
+                            <height>100</height>
+                            <x>0</x>
+                            <y>0</y>
+                            <colspan>1</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>0</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <url/>
+                            <application/>
+                            <max_columns>3</max_columns>
+                        </screen_item>
+                    </screen_items>
+                </screen>
+            </screens>
+        </template>
+        <template>
+            <template>Template epmmm Linux Numa Nodes info</template>
+            <name>Template epmmm Linux Numa Nodes info</name>
+            <groups>
+                <group>
+                    <name>Template EPMMM NUMA CPU INFO</name>
+                </group>
+                <group>
+                    <name>Templates</name>
+                </group>
+            </groups>
+            <applications>
+                <application>
+                    <name>NUMA CPU NODE INFO</name>
+                </application>
+            </applications>
+            <items>
+                <item>
+                    <name>epmmm get numa nodes cpu info</name>
+                    <key>epmmm.get.numa_nodes_cpu_info[{HOST.NAME}]</key>
+                    <delay>5</delay>
+                    <applications>
+                        <application>
+                            <name>NUMA CPU NODE INFO</name>
+                        </application>
+                    </applications>
+                </item>
+            </items>
+            <discovery_rules>
+                <discovery_rule>
+                    <name>NUMA CPU Nodes discovery</name>
+                    <key>epmmm.cpu.discover_numa_node_name</key>
+                    <delay>600</delay>
+                    <lifetime>7d</lifetime>
+                    <item_prototypes>
+                        <item_prototype>
+                            <name>CPU:cpu_numa_hi_[$1]</name>
+                            <type>TRAP</type>
+                            <key>cpu.numa.hi.[{#NUMACPUNODENAME}]</key>
+                            <delay>0</delay>
+                            <history>30d</history>
+                            <value_type>FLOAT</value_type>
+                            <applications>
+                                <application>
+                                    <name>NUMA CPU NODE INFO</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>CPU:cpu_numa_id_[$1]</name>
+                            <type>TRAP</type>
+                            <key>cpu.numa.id.[{#NUMACPUNODENAME}]</key>
+                            <delay>0</delay>
+                            <history>30d</history>
+                            <value_type>FLOAT</value_type>
+                            <applications>
+                                <application>
+                                    <name>NUMA CPU NODE INFO</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>CPU:cpu_numa_ni_[$1]</name>
+                            <type>TRAP</type>
+                            <key>cpu.numa.ni.[{#NUMACPUNODENAME}]</key>
+                            <delay>0</delay>
+                            <history>30d</history>
+                            <value_type>FLOAT</value_type>
+                            <applications>
+                                <application>
+                                    <name>NUMA CPU NODE INFO</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>CPU:cpu_numa_si_[$1]</name>
+                            <type>TRAP</type>
+                            <key>cpu.numa.si.[{#NUMACPUNODENAME}]</key>
+                            <delay>0</delay>
+                            <history>30d</history>
+                            <value_type>FLOAT</value_type>
+                            <applications>
+                                <application>
+                                    <name>NUMA CPU NODE INFO</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>CPU:cpu_numa_st_[$1]</name>
+                            <type>TRAP</type>
+                            <key>cpu.numa.st.[{#NUMACPUNODENAME}]</key>
+                            <delay>0</delay>
+                            <history>30d</history>
+                            <value_type>FLOAT</value_type>
+                            <applications>
+                                <application>
+                                    <name>NUMA CPU NODE INFO</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>CPU:cpu_numa_sy_[$1]</name>
+                            <type>TRAP</type>
+                            <key>cpu.numa.sy.[{#NUMACPUNODENAME}]</key>
+                            <delay>0</delay>
+                            <history>30d</history>
+                            <value_type>FLOAT</value_type>
+                            <applications>
+                                <application>
+                                    <name>NUMA CPU NODE INFO</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>CPU:cpu_numa_us_[$1]</name>
+                            <type>TRAP</type>
+                            <key>cpu.numa.us.[{#NUMACPUNODENAME}]</key>
+                            <delay>0</delay>
+                            <history>30d</history>
+                            <value_type>FLOAT</value_type>
+                            <applications>
+                                <application>
+                                    <name>NUMA CPU NODE INFO</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>CPU:cpu_numa_wa_[$1]</name>
+                            <type>TRAP</type>
+                            <key>cpu.numa.wa.[{#NUMACPUNODENAME}]</key>
+                            <delay>0</delay>
+                            <history>30d</history>
+                            <value_type>FLOAT</value_type>
+                            <applications>
+                                <application>
+                                    <name>NUMA CPU NODE INFO</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                    </item_prototypes>
+                    <graph_prototypes>
+                        <graph_prototype>
+                            <name>Numa {#NUMACPUNODENAME} cpu use info</name>
+                            <type>STACKED</type>
+                            <graph_items>
+                                <graph_item>
+                                    <color>009900</color>
+                                    <item>
+                                        <host>Template epmmm Linux Numa Nodes info</host>
+                                        <key>cpu.numa.st.[{#NUMACPUNODENAME}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>1</sortorder>
+                                    <color>CC00CC</color>
+                                    <item>
+                                        <host>Template epmmm Linux Numa Nodes info</host>
+                                        <key>cpu.numa.si.[{#NUMACPUNODENAME}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>2</sortorder>
+                                    <color>006600</color>
+                                    <item>
+                                        <host>Template epmmm Linux Numa Nodes info</host>
+                                        <key>cpu.numa.hi.[{#NUMACPUNODENAME}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>3</sortorder>
+                                    <color>000000</color>
+                                    <item>
+                                        <host>Template epmmm Linux Numa Nodes info</host>
+                                        <key>cpu.numa.wa.[{#NUMACPUNODENAME}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>4</sortorder>
+                                    <color>66FF66</color>
+                                    <item>
+                                        <host>Template epmmm Linux Numa Nodes info</host>
+                                        <key>cpu.numa.id.[{#NUMACPUNODENAME}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>5</sortorder>
+                                    <color>3333FF</color>
+                                    <item>
+                                        <host>Template epmmm Linux Numa Nodes info</host>
+                                        <key>cpu.numa.ni.[{#NUMACPUNODENAME}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>6</sortorder>
+                                    <color>FFFF66</color>
+                                    <item>
+                                        <host>Template epmmm Linux Numa Nodes info</host>
+                                        <key>cpu.numa.sy.[{#NUMACPUNODENAME}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>7</sortorder>
+                                    <color>FF3333</color>
+                                    <item>
+                                        <host>Template epmmm Linux Numa Nodes info</host>
+                                        <key>cpu.numa.us.[{#NUMACPUNODENAME}]</key>
+                                    </item>
+                                </graph_item>
+                            </graph_items>
+                        </graph_prototype>
+                    </graph_prototypes>
+                </discovery_rule>
+            </discovery_rules>
+        </template>
+        <template>
+            <template>Template epmmm Linux Sock Status Statistics</template>
+            <name>Template epmmm Linux Sock Status Statistics</name>
+            <groups>
+                <group>
+                    <name>Templates</name>
+                </group>
+            </groups>
+            <applications>
+                <application>
+                    <name>Network Sockets</name>
+                </application>
+            </applications>
+            <items>
+                <item>
+                    <name>TCP Sockets CLOSE-WAIT number</name>
+                    <type>TRAP</type>
+                    <key>sockstat.CLOSE-WAIT.number</key>
+                    <delay>0</delay>
+                    <applications>
+                        <application>
+                            <name>Network Sockets</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>TCP Sockets CLOSED number</name>
+                    <type>TRAP</type>
+                    <key>sockstat.CLOSED.number</key>
+                    <delay>0</delay>
+                    <applications>
+                        <application>
+                            <name>Network Sockets</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>TCP Sockets CLOSING number</name>
+                    <type>TRAP</type>
+                    <key>sockstat.CLOSING.number</key>
+                    <delay>0</delay>
+                    <applications>
+                        <application>
+                            <name>Network Sockets</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>TCP Sockets ESTAB number</name>
+                    <type>TRAP</type>
+                    <key>sockstat.ESTAB.number</key>
+                    <delay>0</delay>
+                    <applications>
+                        <application>
+                            <name>Network Sockets</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>TCP Sockets FIN-WAIT-1 number</name>
+                    <type>TRAP</type>
+                    <key>sockstat.FIN-WAIT-1.number</key>
+                    <delay>0</delay>
+                    <applications>
+                        <application>
+                            <name>Network Sockets</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>TCP Sockets FIN-WAIT-2 number</name>
+                    <type>TRAP</type>
+                    <key>sockstat.FIN-WAIT-2.number</key>
+                    <delay>0</delay>
+                    <applications>
+                        <application>
+                            <name>Network Sockets</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>FRAG In Use</name>
+                    <type>TRAP</type>
+                    <key>sockstat.frag.inuse</key>
+                    <delay>0</delay>
+                    <applications>
+                        <application>
+                            <name>Network Sockets</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>FRAG Memory</name>
+                    <type>TRAP</type>
+                    <key>sockstat.frag.mem</key>
+                    <delay>0</delay>
+                    <units>bytes</units>
+                    <applications>
+                        <application>
+                            <name>Network Sockets</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>TCP Sockets LAST-ACK number</name>
+                    <type>TRAP</type>
+                    <key>sockstat.LAST-ACK.number</key>
+                    <delay>0</delay>
+                    <applications>
+                        <application>
+                            <name>Network Sockets</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>TCP Sockets LISTEN number</name>
+                    <type>TRAP</type>
+                    <key>sockstat.LISTEN.number</key>
+                    <delay>0</delay>
+                    <applications>
+                        <application>
+                            <name>Network Sockets</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>RAW In Use</name>
+                    <type>TRAP</type>
+                    <key>sockstat.raw.inuse</key>
+                    <delay>0</delay>
+                    <applications>
+                        <application>
+                            <name>Network Sockets</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>Total Sockets</name>
+                    <type>TRAP</type>
+                    <key>sockstat.sockets</key>
+                    <delay>0</delay>
+                    <units>sockets</units>
+                    <description>Number of open sockets</description>
+                    <applications>
+                        <application>
+                            <name>Network Sockets</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>Socket Statistics</name>
+                    <key>sockstat.statistics[{HOST.NAME}]</key>
+                    <delay>5</delay>
+                    <applications>
+                        <application>
+                            <name>Network Sockets</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>TCP Sockets SYN-RECV number</name>
+                    <type>TRAP</type>
+                    <key>sockstat.SYN-RECV.number</key>
+                    <delay>0</delay>
+                    <applications>
+                        <application>
+                            <name>Network Sockets</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>TCP Sockets SYN-SENT number</name>
+                    <type>TRAP</type>
+                    <key>sockstat.SYN-SENT.number</key>
+                    <delay>0</delay>
+                    <applications>
+                        <application>
+                            <name>Network Sockets</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>TCP Sockets Allocated</name>
+                    <type>TRAP</type>
+                    <key>sockstat.tcp.allocated</key>
+                    <delay>0</delay>
+                    <units>sockets</units>
+                    <applications>
+                        <application>
+                            <name>Network Sockets</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>TCP Sockets In Use</name>
+                    <type>TRAP</type>
+                    <key>sockstat.tcp.inuse</key>
+                    <delay>0</delay>
+                    <units>sockets</units>
+                    <description>TCP sockets currently in use on the system.</description>
+                    <applications>
+                        <application>
+                            <name>Network Sockets</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>TCP Sockets Memory</name>
+                    <type>TRAP</type>
+                    <key>sockstat.tcp.mem</key>
+                    <delay>0</delay>
+                    <units>bytes</units>
+                    <applications>
+                        <application>
+                            <name>Network Sockets</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>TCP Sockets TCP Number</name>
+                    <type>TRAP</type>
+                    <key>sockstat.TCP.number</key>
+                    <delay>0</delay>
+                    <applications>
+                        <application>
+                            <name>Network Sockets</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>TCP Sockets Orphaned</name>
+                    <type>TRAP</type>
+                    <key>sockstat.tcp.orphan</key>
+                    <delay>0</delay>
+                    <units>sockets</units>
+                    <applications>
+                        <application>
+                            <name>Network Sockets</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>TCP Sockets in TIME_WAIT</name>
+                    <type>TRAP</type>
+                    <key>sockstat.tcp.timewait</key>
+                    <delay>0</delay>
+                    <units>sockets</units>
+                    <applications>
+                        <application>
+                            <name>Network Sockets</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>TCP Sockets TIME-WAIT number</name>
+                    <type>TRAP</type>
+                    <key>sockstat.TIME-WAIT.number</key>
+                    <delay>0</delay>
+                    <applications>
+                        <application>
+                            <name>Network Sockets</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>TCP Sockets Total Number</name>
+                    <type>TRAP</type>
+                    <key>sockstat.Total.number</key>
+                    <delay>0</delay>
+                    <applications>
+                        <application>
+                            <name>Network Sockets</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>UDP Sockets In Use</name>
+                    <type>TRAP</type>
+                    <key>sockstat.udp.inuse</key>
+                    <delay>0</delay>
+                    <units>sockets</units>
+                    <applications>
+                        <application>
+                            <name>Network Sockets</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>UDP Socket Memory</name>
+                    <type>TRAP</type>
+                    <key>sockstat.udp.mem</key>
+                    <delay>0</delay>
+                    <units>bytes</units>
+                    <applications>
+                        <application>
+                            <name>Network Sockets</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>UDPLITE Sockets In Use</name>
+                    <type>TRAP</type>
+                    <key>sockstat.udplite.inuse</key>
+                    <delay>0</delay>
+                    <units>sockets</units>
+                    <applications>
+                        <application>
+                            <name>Network Sockets</name>
+                        </application>
+                    </applications>
+                </item>
+            </items>
+            <screens>
+                <screen>
+                    <name>Linux Socket status</name>
+                    <hsize>1</hsize>
+                    <vsize>2</vsize>
+                    <screen_items>
+                        <screen_item>
+                            <resourcetype>0</resourcetype>
+                            <style>0</style>
+                            <resource>
+                                <name>TCP Sockets Status</name>
+                                <host>Template epmmm Linux Sock Status Statistics</host>
+                            </resource>
+                            <width>1500</width>
+                            <height>100</height>
+                            <x>0</x>
+                            <y>0</y>
+                            <colspan>1</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>0</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <url/>
+                            <application/>
+                            <max_columns>3</max_columns>
+                        </screen_item>
+                        <screen_item>
+                            <resourcetype>0</resourcetype>
+                            <style>0</style>
+                            <resource>
+                                <name>TCP Socket Statistics</name>
+                                <host>Template epmmm Linux Sock Status Statistics</host>
+                            </resource>
+                            <width>1500</width>
+                            <height>100</height>
+                            <x>0</x>
+                            <y>1</y>
+                            <colspan>1</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>0</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <url/>
+                            <application/>
+                            <max_columns>3</max_columns>
+                        </screen_item>
+                    </screen_items>
+                </screen>
+            </screens>
+        </template>
+    </templates>
+    <graphs>
+        <graph>
+            <name>TCP Sockets Status</name>
+            <graph_items>
+                <graph_item>
+                    <color>00C800</color>
+                    <item>
+                        <host>Template epmmm Linux Sock Status Statistics</host>
+                        <key>sockstat.CLOSE-WAIT.number</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>1</sortorder>
+                    <color>C80000</color>
+                    <item>
+                        <host>Template epmmm Linux Sock Status Statistics</host>
+                        <key>sockstat.CLOSED.number</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>2</sortorder>
+                    <color>0000C8</color>
+                    <item>
+                        <host>Template epmmm Linux Sock Status Statistics</host>
+                        <key>sockstat.CLOSING.number</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>3</sortorder>
+                    <color>FF66FF</color>
+                    <yaxisside>RIGHT</yaxisside>
+                    <item>
+                        <host>Template epmmm Linux Sock Status Statistics</host>
+                        <key>sockstat.ESTAB.number</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>4</sortorder>
+                    <color>00C8C8</color>
+                    <item>
+                        <host>Template epmmm Linux Sock Status Statistics</host>
+                        <key>sockstat.FIN-WAIT-1.number</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>5</sortorder>
+                    <color>888800</color>
+                    <item>
+                        <host>Template epmmm Linux Sock Status Statistics</host>
+                        <key>sockstat.FIN-WAIT-2.number</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>6</sortorder>
+                    <color>FFFFCC</color>
+                    <item>
+                        <host>Template epmmm Linux Sock Status Statistics</host>
+                        <key>sockstat.LAST-ACK.number</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>7</sortorder>
+                    <item>
+                        <host>Template epmmm Linux Sock Status Statistics</host>
+                        <key>sockstat.LISTEN.number</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>8</sortorder>
+                    <color>770000</color>
+                    <item>
+                        <host>Template epmmm Linux Sock Status Statistics</host>
+                        <key>sockstat.SYN-RECV.number</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>9</sortorder>
+                    <color>000096</color>
+                    <item>
+                        <host>Template epmmm Linux Sock Status Statistics</host>
+                        <key>sockstat.SYN-SENT.number</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>10</sortorder>
+                    <color>BB00BB</color>
+                    <item>
+                        <host>Template epmmm Linux Sock Status Statistics</host>
+                        <key>sockstat.TIME-WAIT.number</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>11</sortorder>
+                    <color>009696</color>
+                    <yaxisside>RIGHT</yaxisside>
+                    <item>
+                        <host>Template epmmm Linux Sock Status Statistics</host>
+                        <key>sockstat.TCP.number</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>12</sortorder>
+                    <color>969600</color>
+                    <yaxisside>RIGHT</yaxisside>
+                    <item>
+                        <host>Template epmmm Linux Sock Status Statistics</host>
+                        <key>sockstat.Total.number</key>
+                    </item>
+                </graph_item>
+            </graph_items>
+        </graph>
+        <graph>
+            <name>TCP Socket Statistics</name>
+            <graph_items>
+                <graph_item>
+                    <color>EE0000</color>
+                    <item>
+                        <host>Template epmmm Linux Sock Status Statistics</host>
+                        <key>sockstat.tcp.orphan</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>1</sortorder>
+                    <color>00DD00</color>
+                    <item>
+                        <host>Template epmmm Linux Sock Status Statistics</host>
+                        <key>sockstat.tcp.inuse</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>2</sortorder>
+                    <color>FFFF99</color>
+                    <item>
+                        <host>Template epmmm Linux Sock Status Statistics</host>
+                        <key>sockstat.tcp.timewait</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>3</sortorder>
+                    <color>880088</color>
+                    <yaxisside>RIGHT</yaxisside>
+                    <item>
+                        <host>Template epmmm Linux Sock Status Statistics</host>
+                        <key>sockstat.tcp.mem</key>
+                    </item>
+                </graph_item>
+            </graph_items>
+        </graph>
+    </graphs>
+</zabbix_export>
