@@ -11,7 +11,7 @@ https://github.com/earl86/epmmm
 Info: The scripts only tested on python 3
 
 
-Using:
+# Using:
 
 install python3 and pip3
 
@@ -43,7 +43,7 @@ Zabbix server call agent runs the wrapper *.sh script every 5 seconds. and zabbi
 
 On zabbix server test the script using:
 
-MySQL:
+# MySQL:
 
 zabbix_get -s 192.168.0.1 -p 10050 -k "epmmm.mysql.check[zabbixmysql,192.168.0.1,3306,check]"
 
@@ -72,7 +72,7 @@ Add the mysqlservice on zabbix web
 Enjoy it!
 
 
-Memcached Redis Tendis etc.:
+# Memcached Redis Tendis etc.:
 
 use like MySQL 
 
