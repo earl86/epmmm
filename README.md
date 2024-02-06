@@ -43,7 +43,7 @@ Zabbix server call agent runs the wrapper *.sh script every 5 seconds. and zabbi
 
 On zabbix server test the script using:
 
-Mysql:
+MySQL:
 
 zabbix_get -s 192.168.0.1 -p 10050 -k "epmmm.mysql.check[zabbixmysql,192.168.0.1,3306,check]"
 
@@ -72,8 +72,8 @@ Add the mysqlservice on zabbix web
 Enjoy it!
 
 
-Memcached Redis etc.:
+Memcached Redis Tendis etc.:
 
-use like Mysql 
+use like MySQL 
 
 
