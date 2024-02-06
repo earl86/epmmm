@@ -31,14 +31,10 @@ pip3 install PyMySQL
 
 pip3 install redis
 
-you may be need to link file:
-
-ln -s /usr/local/mysql/lib/libmysqlclient.so.18 /usr/lib64/libmysqlclient.so.18
-
 
 The wrapper *.sh for zabbix agent call script.
 
-Zabbix server call agent runs the wrapper *.sh script every 5 seconds. and zabbix agent node put data to zabbix server in trapper mode.
+Zabbix server call agent run the wrapper *.sh script every 10 seconds. and then zabbix agent put data to zabbix server in trapper mode.
 
 
 On zabbix server test the script using:
