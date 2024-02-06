@@ -15,7 +15,7 @@ Info: The scripts only tested on python 3
 
 install python3 and pip3
 
-yum install python3-devel gcc gcc-c++
+yum install python3-devel
 
 pip3 install py-zabbix
 
