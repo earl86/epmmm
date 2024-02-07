@@ -72,6 +72,7 @@ mysql     159694  157401 99  2021 ?        28847-16:16:22 /usr/local/mysql/bin/m
 USERNAME=zabbix
 PASSWORD=zabbix@2014
 
+## Test:
 zabbix_get -s 192.168.0.1 -p 10050 -k "epmmm.mysql.check[zabbixmysql,192.168.0.1,3306,check,mysql-instance,zabbix_server]"
 
 /usr/local/bin/python3 epmmm_get_mysql_stats.py --servicename ${SERVICENAME} --serviceip ${SERVICEIP} --serviceport ${SERVICEPORT} --username ${USERNAME} --password ${PASSWORD} --zabbix_type ${ZABBIXTYPE}
