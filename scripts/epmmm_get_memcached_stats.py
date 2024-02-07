@@ -16,17 +16,20 @@ from pymemcache.client.base import Client
 
 parser = argparse.ArgumentParser(description='host name')
 parser.add_argument('-n','--hostname',dest='hostname',action='store',help='hostname in zabbix hostname',default=None, required=True)
-parser.add_argument('-l','--serviceip',dest='serviceip',action='store',help='serviceip for memcached',default='127.0.0.1')
-parser.add_argument('-p','--serviceport',dest='serviceport',action='store',type=int,help='serviceport for memcached',default=11211)
+parser.add_argument('-l','--memcached_ip',dest='memcached_ip',action='store',help='memcached_ip',default='127.0.0.1')
+parser.add_argument('-b', '--memcached_bind_ip', dest='memcached_bind_ip', action="store", help="memcached_bind_ip", default='0.0.0.0')
+parser.add_argument('-p','--memcached_port',dest='memcached_port',action='store',type=int,help='memcached_port',default=11211)
 parser.add_argument('-z', '--zabbix_type', dest='zabbix_type', action="store", help="zabbix_type", default='co')
 args = parser.parse_args()
 
-hostname = args.hostname
-serviceip = args.serviceip
-serviceport = args.serviceport
+HOSTNAME = args.hostname
+MEMCACHED_IP = args.memcached_ip
+MEMCACHED_BIND_IP = args.memcached_bind_ip
+MEMCACHED_PORT = args.memcached_port
+
 
 logging.basicConfig(level=logging.INFO,
-                    filename='/var/log/zabbix/epmmm-get-memcached-stats-%s.log' % (hostname),
+                    filename='/var/log/zabbix/epmmm-get-memcached-stats-%s.log' % (HOSTNAME),
                     datefmt='%Y/%m/%d %H:%M:%S',
                     format='%(asctime)s - %(name)s - %(levelname)s - %(lineno)d - %(module)s - %(message)s')
 
@@ -48,7 +51,7 @@ META_ZABBIX_SERVER_PORT = cfg.getint(args.zabbix_type,'META_ZABBIX_SERVER_PORT')
 def generate_packet(hostname):
     packet = []
     try:
-        client = Client((serviceip, serviceport))
+        client = Client((MEMCACHED_IP, MEMCACHED_PORT))
         memstatsdict = client.stats()
 
         for memstats in memstatsdict:
@@ -58,16 +61,16 @@ def generate_packet(hostname):
         if b'replication' in memstatsdict:
             role_info = memstatsdict[b'replication'].decode()
             if (role_info == "MASTER"):
-                packet.append(ZabbixMetric(hostname, "memcached_stats[%s]" % 'master', 1))
+                packet.append(ZabbixMetric(HOSTNAME, "memcached_stats[%s]" % 'master', 1))
             else:
                 #SLAVE,RELAY
-                packet.append(ZabbixMetric(hostname, "memcached_stats[%s]" % 'master', 0))
+                packet.append(ZabbixMetric(HOSTNAME, "memcached_stats[%s]" % 'master', 0))
         else:
-            packet.append(ZabbixMetric(hostname, "memcached_stats[%s]" % 'master', 1))
-        packet.append(ZabbixMetric(hostname, "memcached_stats[%s]" % 'status', 1))
+            packet.append(ZabbixMetric(HOSTNAME, "memcached_stats[%s]" % 'master', 1))
+        packet.append(ZabbixMetric(HOSTNAME, "memcached_stats[%s]" % 'status', 1))
     except Exception as e:
-        logger.info('epmmm %s, %s, %s!', hostname, serviceip, e)
-        packet.append(ZabbixMetric(hostname, "memcached_stats[%s]" % 'status', 0))
+        logger.info('epmmm %s, %s, %s!', HOSTNAME, MEMCACHED_IP, e)
+        packet.append(ZabbixMetric(HOSTNAME, "memcached_stats[%s]" % 'status', 0))
 
     #print(packet)
     return packet
@@ -79,12 +82,12 @@ def send_to_zabbix(packet, zabbix_host, zabbix_port):
     server.send(packet)
 
 def main():
-    packet = generate_packet(hostname)
+    packet = generate_packet(HOSTNAME)
     #print(packet)
     try:
         send_to_zabbix(packet, META_ZABBIX_SERVER_IP, META_ZABBIX_SERVER_PORT)
     except Exception as e:
-        logger.error('epmmm: %s %s %s. %s!' % ( hostname, serviceip, serviceport, e))
+        logger.error('epmmm: %s %s %s. %s!' % ( HOSTNAME, MEMCACHED_IP, MEMCACHED_PORT, e))
 
 if __name__ == '__main__':
     main()
