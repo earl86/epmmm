@@ -3,6 +3,14 @@
 
 import sys
 import json
+import argparse
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-n', '--hostname', dest='hostname', action="store", help="input the hostname", required=True)
+args = parser.parse_args()
+
+HOSTNAME=args.hostname
 
 
 def get_servicename(hostname):
@@ -45,8 +53,7 @@ def get_servicename(hostname):
         return None
 
 if __name__ == "__main__":
-    hostname = sys.argv[1]
-    servicename = get_servicename(hostname)[0]
+    servicename = get_servicename(HOSTNAME)[0]
     if servicename:
         data = [{"{#INSTANCEIP}": servicename}]
         print(json.dumps({"data": data}, indent=4))

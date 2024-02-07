@@ -12,7 +12,7 @@ from pyzabbix.sender import ZabbixMetric, ZabbixSender
 from epmmm_db_monitor_ping_discover import get_servicename
 
 from log import HandleLog
-logger = HandleLog("db-monitor-ping-stats.log").getMyLogger()
+logger = HandleLog("epmmm-db-monitor-ping-stats.log").getMyLogger()
 
 from alarm import send_message_to_skypealarm
 
