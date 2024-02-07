@@ -11,9 +11,9 @@ https://github.com/earl86/epmmm
 Info: The scripts only tested on python 3
 
 
-# Using:
+# Install:
 
-install python3 and pip3
+install python3 and pip3 and zabbix_sender
 
 yum install python3-devel
 
@@ -31,39 +31,50 @@ pip3 install PyMySQL
 
 pip3 install redis
 
-
-The wrapper *.sh for zabbix agent call script.
+pip3 install configparser
 
 Zabbix server call agent run the wrapper *.sh script every 10 seconds. and then zabbix agent put data to zabbix server in trapper mode.
 
+1. Modify the zabbix_meta.ini
+    [zabbix_server]
+    META_ZABBIX_SERVER_IP=192.168.0.100
+    META_ZABBIX_SERVER_PORT=10051
+
+3. Install the scripts and conf to zabbix agent server
+4. Import the template to zabbix web
+5. Restart the zabbix agent
+
+
+# Using:
 
 On zabbix server test the script using:
 
 # MySQL:
+##Zabbix agent key: 
+1. epmmm.mysql.check[{HOST.NAME},{HOST.IP},{$MYSQL_PORT},check,{$SERVICEUNIQ},{$ZABBIXTYPE}]
+2. epmmm.mysql.check[{HOST.NAME},{HOST.IP},{$MYSQL_PORT},mysqld_cpu_use,{$SERVICEUNIQ},{$ZABBIXTYPE}]
 
-zabbix_get -s 192.168.0.1 -p 10050 -k "epmmm.mysql.check[zabbixmysql,192.168.0.1,3306,check]"
+## Zabbix template Macros:
+1. {$MYSQL_PORT} : 3306
+2. {$SERVICEUNIQ}: ''
+3. {$SERVICE_ROLE}: master/slave/backup
+4. {$ZABBIXTYPE}: name in zabbix_meta.ini
 
-python epmmm_get_mysql_stats.py --servicehostname $SERVICEHOSTNAME --serviceip $SERVICEIP --serviceport $SERVICEPORT --username $USERNAME --password $PASSWORD --zabbixserver $ZABBIXSERVER --zabbixserver_port $ZABBIXSERVER_PORT
+## MySQL instance like this:
+ps -ef |grep mysql
+root      157401       1  0  2021 ?        00:00:00 /bin/sh /usr/local/mysql/bin/mysqld_safe --defaults-file=/etc/my-mysql-instance.cnf
+mysql     159694  157401 99  2021 ?        28847-16:16:22 /usr/local/mysql/bin/mysqld --defaults-file=/etc/my-mysql-instance.cnf --basedir=/usr/local/mysql --datadir=/data/mysql/mysql-instance/data --plugin-dir=/usr/local/mysql/lib/mysql/plugin --user=mysql --log-error=/data/mysql/mysql-instance/log/log-error.log --pid-file=/data/mysql/mysql-instance/tmp/mysqld.pid --socket=/data/mysql/mysql-instance/tmp/mysql.sock --port=3306
 
-The script need zabbix_sender and Python3 Running Environment
+## Add User to MySQL instance
+USERNAME=zabbix
+PASSWORD=zabbix@2014
+
+zabbix_get -s 192.168.0.1 -p 10050 -k "epmmm.mysql.check[zabbixmysql,192.168.0.1,3306,check,mysql-instance,zabbix_server]"
+
+/usr/local/bin/python3 epmmm_get_mysql_stats.py --servicename ${SERVICENAME} --serviceip ${SERVICEIP} --serviceport ${SERVICEPORT} --username ${USERNAME} --password ${PASSWORD} --zabbix_type ${ZABBIXTYPE}
 
 The default monitor mysql port is 3306, if you need to monitor other port, you need to add the Inherited and host macros:{$MYSQL_PORT}=xxxx on the monitor Host
 
-Remember to change the USERNAME PASSWORD ZABBIXSERVER for your's.
-
-Import the template into zabbix web.
-
-put the following three scripts on the mysql server which has zabbix agent
-
-/etc/zabbix/zabbix_agentd.d/userparameter_epmmm_mysql.conf
-
-/etc/zabbix/scripts/epmmm_get_mysql_stats_wrapper.sh
-
-/etc/zabbix/scripts/epmmm_get_mysql_stats.py
-
-restart the zabbix agent service
-
-Add the mysqlservice on zabbix web 
 
 Enjoy it!
 
