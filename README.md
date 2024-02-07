@@ -36,9 +36,12 @@ pip3 install configparser
 Zabbix server call agent run the wrapper *.sh script every 10 seconds. and then zabbix agent put data to zabbix server in trapper mode.
 
 1. Modify the zabbix_meta.ini
-    [zabbix_server]
-    META_ZABBIX_SERVER_IP=192.168.0.100
-    META_ZABBIX_SERVER_PORT=10051
+   
+[zabbix_server]
+
+META_ZABBIX_SERVER_IP=192.168.0.100
+
+META_ZABBIX_SERVER_PORT=10051
 
 3. Install the scripts and conf to zabbix agent server
 4. Import the template to zabbix web
