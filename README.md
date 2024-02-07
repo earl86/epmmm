@@ -62,8 +62,11 @@ On zabbix server test the script using:
 
 ## MySQL instance like this:
 ps -ef |grep mysql
+
 root      157401       1  0  2021 ?        00:00:00 /bin/sh /usr/local/mysql/bin/mysqld_safe --defaults-file=/etc/my-mysql-instance.cnf
+
 mysql     159694  157401 99  2021 ?        28847-16:16:22 /usr/local/mysql/bin/mysqld --defaults-file=/etc/my-mysql-instance.cnf --basedir=/usr/local/mysql --datadir=/data/mysql/mysql-instance/data --plugin-dir=/usr/local/mysql/lib/mysql/plugin --user=mysql --log-error=/data/mysql/mysql-instance/log/log-error.log --pid-file=/data/mysql/mysql-instance/tmp/mysqld.pid --socket=/data/mysql/mysql-instance/tmp/mysql.sock --port=3306
+
 
 ## Add User to MySQL instance
 USERNAME=zabbix
