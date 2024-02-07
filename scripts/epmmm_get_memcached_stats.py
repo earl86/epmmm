@@ -61,16 +61,16 @@ def generate_packet(hostname):
         if b'replication' in memstatsdict:
             role_info = memstatsdict[b'replication'].decode()
             if (role_info == "MASTER"):
-                packet.append(ZabbixMetric(HOSTNAME, "memcached_stats[%s]" % 'master', 1))
+                packet.append(ZabbixMetric(hostname, "memcached_stats[%s]" % 'master', 1))
             else:
                 #SLAVE,RELAY
-                packet.append(ZabbixMetric(HOSTNAME, "memcached_stats[%s]" % 'master', 0))
+                packet.append(ZabbixMetric(hostname, "memcached_stats[%s]" % 'master', 0))
         else:
-            packet.append(ZabbixMetric(HOSTNAME, "memcached_stats[%s]" % 'master', 1))
-        packet.append(ZabbixMetric(HOSTNAME, "memcached_stats[%s]" % 'status', 1))
+            packet.append(ZabbixMetric(hostname, "memcached_stats[%s]" % 'master', 1))
+        packet.append(ZabbixMetric(hostname, "memcached_stats[%s]" % 'status', 1))
     except Exception as e:
-        logger.info('epmmm %s, %s, %s!', HOSTNAME, MEMCACHED_IP, e)
-        packet.append(ZabbixMetric(HOSTNAME, "memcached_stats[%s]" % 'status', 0))
+        logger.info('epmmm %s, %s, %s!', hostname, MEMCACHED_IP, e)
+        packet.append(ZabbixMetric(hostname, "memcached_stats[%s]" % 'status', 0))
 
     #print(packet)
     return packet
