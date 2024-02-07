@@ -137,8 +137,6 @@ def main():
 
     try:
         send_to_zabbix(packet, META_ZABBIX_SERVER_IP, META_ZABBIX_SERVER_PORT)
-        logger.info('epmmm: send to new zabbix')
-
     except Exception as e:
         logger.error('epmmm: %s. %s!' % ( hostname, e))
 

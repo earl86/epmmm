@@ -1,16 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
-import sys
 import json
 import argparse
-
-
-parser = argparse.ArgumentParser()
-parser.add_argument('-n', '--hostname', dest='hostname', action="store", help="input the hostname", required=True)
-args = parser.parse_args()
-
-HOSTNAME=args.hostname
 
 
 def get_servicename(hostname):
@@ -23,7 +15,7 @@ def get_servicename(hostname):
         'em_memcached_6_3_1': ['em_memcached_6_3_2', 0], 'em_memcached_6_3_2': ['em_memcached_6_3_1', 0],
         'em_memcached_6_4_1': ['em_memcached_6_4_2', 0], 'em_memcached_6_4_2': ['em_memcached_6_4_1', 0],
         'em_memcached_6_5_1': ['em_memcached_6_5_2', 0], 'em_memcached_6_5_2': ['em_memcached_6_5_1', 0],
-        'em_memcached_6_5_1': ['em_memcached_6_6_2', 0], 'em_memcached_6_6_2': ['em_memcached_6_5_1', 0],
+        'em_memcached_6_6_1': ['em_memcached_6_6_2', 0], 'em_memcached_6_6_2': ['em_memcached_6_6_1', 0],
         'em_memcached_6_7_1': ['em_memcached_6_7_2', 0], 'em_memcached_6_7_2': ['em_memcached_6_7_1', 0],
         'em_memcached_6_8_1': ['em_memcached_6_8_2', 0], 'em_memcached_6_8_2': ['em_memcached_6_8_1', 0],
 
@@ -53,6 +45,12 @@ def get_servicename(hostname):
         return None
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-n', '--hostname', dest='hostname', action="store", help="input the hostname", required=True)
+    args = parser.parse_args()
+
+    HOSTNAME=args.hostname
+
     servicename = get_servicename(HOSTNAME)[0]
     if servicename:
         data = [{"{#INSTANCEIP}": servicename}]

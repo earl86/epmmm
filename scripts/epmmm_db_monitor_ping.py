@@ -22,7 +22,6 @@ parser.add_argument('-n', '--hostname', dest='hostname', action="store", help="i
 parser.add_argument('-z', '--zabbix_type', dest='zabbix_type', action="store", help="zabbix_type", default='co')
 args = parser.parse_args()
 
-
 HOSTNAME=args.hostname
 
 basedir, _ = os.path.split(os.path.abspath(sys.argv[0]))
@@ -38,6 +37,7 @@ META_ZABBIX_SERVER_PORT = cfg.getint(args.zabbix_type,'META_ZABBIX_SERVER_PORT')
 
 
 DBAContacts="wangchao wanjianjun wangbaoxin lizhe wangdeyu chenjun"
+
 
 
 def send_to_zabbix(packet, zabbix_host, zabbix_port):
