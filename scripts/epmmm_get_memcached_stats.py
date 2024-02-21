@@ -17,14 +17,12 @@ from pymemcache.client.base import Client
 parser = argparse.ArgumentParser(description='host name')
 parser.add_argument('-n','--hostname',dest='hostname',action='store',help='hostname in zabbix hostname',default=None, required=True)
 parser.add_argument('-l','--memcached_ip',dest='memcached_ip',action='store',help='memcached_ip',default='127.0.0.1')
-parser.add_argument('-b', '--memcached_bind_ip', dest='memcached_bind_ip', action="store", help="memcached_bind_ip", default='0.0.0.0')
 parser.add_argument('-p','--memcached_port',dest='memcached_port',action='store',type=int,help='memcached_port',default=11211)
 parser.add_argument('-z', '--zabbix_type', dest='zabbix_type', action="store", help="zabbix_type", default='co')
 args = parser.parse_args()
 
 HOSTNAME = args.hostname
 MEMCACHED_IP = args.memcached_ip
-MEMCACHED_BIND_IP = args.memcached_bind_ip
 MEMCACHED_PORT = args.memcached_port
 
 
