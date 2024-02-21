@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>5.0</version>
-    <date>2024-02-06T10:26:59Z</date>
+    <date>2024-02-21T06:35:11Z</date>
     <groups>
         <group>
             <name>Template EPMMM Memcached</name>
@@ -30,10 +30,23 @@
             <items>
                 <item>
                     <name>Get Memcached stats</name>
-                    <key>get_memcached_stats[{HOST.NAME},{HOST.IP},{$MEMCACHED_PORT},{$ZABBIXTYPE}]</key>
+                    <key>get_memcached_stats[{HOST.NAME},{HOST.IP},{$MEMCACHED_PORT},{$ZABBIXTYPE},check,{$SERVICEUNIQ}]</key>
                     <delay>5</delay>
                     <history>30d</history>
                     <trends>90d</trends>
+                    <applications>
+                        <application>
+                            <name>epmmm memcached memcached</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>Memcached CPU use</name>
+                    <key>get_memcached_stats[{HOST.NAME},{HOST.IP},{$MEMCACHED_PORT},{$ZABBIXTYPE},memcached_cpu_use,{$SERVICEUNIQ}]</key>
+                    <delay>5</delay>
+                    <history>30d</history>
+                    <trends>90d</trends>
+                    <value_type>FLOAT</value_type>
                     <applications>
                         <application>
                             <name>epmmm memcached memcached</name>
@@ -48,6 +61,13 @@
                 </tag>
             </tags>
             <macros>
+                <macro>
+                    <macro>{$MEMCACHED_PORT}</macro>
+                    <value>11211</value>
+                </macro>
+                <macro>
+                    <macro>{$SERVICEUNIQ}</macro>
+                </macro>
                 <macro>
                     <macro>{$ZABBIXTYPE}</macro>
                     <value>co</value>
@@ -94,6 +114,10 @@ pip3 install py-zabbix</description>
                 </tag>
             </tags>
             <macros>
+                <macro>
+                    <macro>{$MEMCACHED_BIND_IP}</macro>
+                    <value>0.0.0.0</value>
+                </macro>
                 <macro>
                     <macro>{$MEMCACHED_PORT}</macro>
                     <value>11211</value>
@@ -880,12 +904,6 @@ pip3 install py-zabbix</description>
                     </applications>
                 </item>
             </items>
-            <macros>
-                <macro>
-                    <macro>{$MEMCACHED_PORT}</macro>
-                    <value>11211</value>
-                </macro>
-            </macros>
             <screens>
                 <screen>
                     <name>memcached stats</name>
@@ -896,7 +914,7 @@ pip3 install py-zabbix</description>
                             <resourcetype>0</resourcetype>
                             <style>0</style>
                             <resource>
-                                <name>Memcached 11211: Bytes read/write</name>
+                                <name>Memcached : Bytes read/write</name>
                                 <host>Template epmmm Memcached stats</host>
                             </resource>
                             <width>400</width>
@@ -918,7 +936,7 @@ pip3 install py-zabbix</description>
                             <resourcetype>0</resourcetype>
                             <style>0</style>
                             <resource>
-                                <name>Memcached 11211: Bytes use</name>
+                                <name>Memcached : Bytes use</name>
                                 <host>Template epmmm Memcached stats</host>
                             </resource>
                             <width>400</width>
@@ -940,7 +958,7 @@ pip3 install py-zabbix</description>
                             <resourcetype>0</resourcetype>
                             <style>0</style>
                             <resource>
-                                <name>Memcached 11211: cache hits and misses</name>
+                                <name>Memcached : cache hits and misses</name>
                                 <host>Template epmmm Memcached stats</host>
                             </resource>
                             <width>400</width>
@@ -962,7 +980,7 @@ pip3 install py-zabbix</description>
                             <resourcetype>0</resourcetype>
                             <style>0</style>
                             <resource>
-                                <name>Memcached 11211: Cmd get/set</name>
+                                <name>Memcached : Cmd get/set</name>
                                 <host>Template epmmm Memcached stats</host>
                             </resource>
                             <width>400</width>
@@ -984,7 +1002,7 @@ pip3 install py-zabbix</description>
                             <resourcetype>0</resourcetype>
                             <style>0</style>
                             <resource>
-                                <name>Memcached 11211: connection info</name>
+                                <name>Memcached : connection info</name>
                                 <host>Template epmmm Memcached stats</host>
                             </resource>
                             <width>400</width>
@@ -1006,7 +1024,7 @@ pip3 install py-zabbix</description>
                             <resourcetype>0</resourcetype>
                             <style>0</style>
                             <resource>
-                                <name>Memcached 11211: cpu time info</name>
+                                <name>Memcached : cpu time info</name>
                                 <host>Template epmmm Memcached stats</host>
                             </resource>
                             <width>400</width>
@@ -1028,7 +1046,7 @@ pip3 install py-zabbix</description>
                             <resourcetype>0</resourcetype>
                             <style>0</style>
                             <resource>
-                                <name>Memcached 11211: items info</name>
+                                <name>Memcached : items info</name>
                                 <host>Template epmmm Memcached stats</host>
                             </resource>
                             <width>400</width>
@@ -1050,7 +1068,7 @@ pip3 install py-zabbix</description>
                             <resourcetype>0</resourcetype>
                             <style>0</style>
                             <resource>
-                                <name>Memcached 11211: stats</name>
+                                <name>Memcached : stats</name>
                                 <host>Template epmmm Memcached stats</host>
                             </resource>
                             <width>400</width>
@@ -1072,7 +1090,7 @@ pip3 install py-zabbix</description>
                             <resourcetype>0</resourcetype>
                             <style>0</style>
                             <resource>
-                                <name>Memcached 11211: total op items</name>
+                                <name>Memcached : total op items</name>
                                 <host>Template epmmm Memcached stats</host>
                             </resource>
                             <width>400</width>
@@ -1105,11 +1123,12 @@ pip3 install py-zabbix</description>
     </triggers>
     <graphs>
         <graph>
-            <name>Memcached 11211: Bytes read/write</name>
+            <name>Memcached : Bytes read/write</name>
             <show_work_period>NO</show_work_period>
             <show_triggers>NO</show_triggers>
             <graph_items>
                 <graph_item>
+                    <sortorder>1</sortorder>
                     <color>009900</color>
                     <calc_fnc>MAX</calc_fnc>
                     <item>
@@ -1118,7 +1137,7 @@ pip3 install py-zabbix</description>
                     </item>
                 </graph_item>
                 <graph_item>
-                    <sortorder>1</sortorder>
+                    <sortorder>2</sortorder>
                     <color>0000DD</color>
                     <calc_fnc>MAX</calc_fnc>
                     <item>
@@ -1129,9 +1148,10 @@ pip3 install py-zabbix</description>
             </graph_items>
         </graph>
         <graph>
-            <name>Memcached 11211: Bytes use</name>
+            <name>Memcached : Bytes use</name>
             <graph_items>
                 <graph_item>
+                    <sortorder>1</sortorder>
                     <drawtype>FILLED_REGION</drawtype>
                     <color>009900</color>
                     <calc_fnc>MAX</calc_fnc>
@@ -1141,7 +1161,7 @@ pip3 install py-zabbix</description>
                     </item>
                 </graph_item>
                 <graph_item>
-                    <sortorder>1</sortorder>
+                    <sortorder>2</sortorder>
                     <drawtype>BOLD_LINE</drawtype>
                     <color>0000DD</color>
                     <calc_fnc>MAX</calc_fnc>
@@ -1153,11 +1173,12 @@ pip3 install py-zabbix</description>
             </graph_items>
         </graph>
         <graph>
-            <name>Memcached 11211: cache hits and misses</name>
+            <name>Memcached : cache hits and misses</name>
             <show_work_period>NO</show_work_period>
             <show_triggers>NO</show_triggers>
             <graph_items>
                 <graph_item>
+                    <sortorder>1</sortorder>
                     <color>009900</color>
                     <calc_fnc>MAX</calc_fnc>
                     <item>
@@ -1166,7 +1187,7 @@ pip3 install py-zabbix</description>
                     </item>
                 </graph_item>
                 <graph_item>
-                    <sortorder>1</sortorder>
+                    <sortorder>2</sortorder>
                     <color>0000DD</color>
                     <calc_fnc>MAX</calc_fnc>
                     <item>
@@ -1175,7 +1196,7 @@ pip3 install py-zabbix</description>
                     </item>
                 </graph_item>
                 <graph_item>
-                    <sortorder>2</sortorder>
+                    <sortorder>3</sortorder>
                     <color>009696</color>
                     <item>
                         <host>Template epmmm Memcached stats</host>
@@ -1183,7 +1204,7 @@ pip3 install py-zabbix</description>
                     </item>
                 </graph_item>
                 <graph_item>
-                    <sortorder>3</sortorder>
+                    <sortorder>4</sortorder>
                     <color>0000C8</color>
                     <item>
                         <host>Template epmmm Memcached stats</host>
@@ -1191,7 +1212,7 @@ pip3 install py-zabbix</description>
                     </item>
                 </graph_item>
                 <graph_item>
-                    <sortorder>4</sortorder>
+                    <sortorder>5</sortorder>
                     <color>C800C8</color>
                     <item>
                         <host>Template epmmm Memcached stats</host>
@@ -1199,7 +1220,7 @@ pip3 install py-zabbix</description>
                     </item>
                 </graph_item>
                 <graph_item>
-                    <sortorder>5</sortorder>
+                    <sortorder>6</sortorder>
                     <color>00C8C8</color>
                     <item>
                         <host>Template epmmm Memcached stats</host>
@@ -1207,7 +1228,7 @@ pip3 install py-zabbix</description>
                     </item>
                 </graph_item>
                 <graph_item>
-                    <sortorder>6</sortorder>
+                    <sortorder>7</sortorder>
                     <color>C8C800</color>
                     <item>
                         <host>Template epmmm Memcached stats</host>
@@ -1215,7 +1236,7 @@ pip3 install py-zabbix</description>
                     </item>
                 </graph_item>
                 <graph_item>
-                    <sortorder>7</sortorder>
+                    <sortorder>8</sortorder>
                     <color>C8C8C8</color>
                     <item>
                         <host>Template epmmm Memcached stats</host>
@@ -1223,14 +1244,14 @@ pip3 install py-zabbix</description>
                     </item>
                 </graph_item>
                 <graph_item>
-                    <sortorder>8</sortorder>
+                    <sortorder>9</sortorder>
                     <item>
                         <host>Template epmmm Memcached stats</host>
                         <key>memcached_stats[delete_misses]</key>
                     </item>
                 </graph_item>
                 <graph_item>
-                    <sortorder>9</sortorder>
+                    <sortorder>10</sortorder>
                     <color>000096</color>
                     <item>
                         <host>Template epmmm Memcached stats</host>
@@ -1238,7 +1259,7 @@ pip3 install py-zabbix</description>
                     </item>
                 </graph_item>
                 <graph_item>
-                    <sortorder>10</sortorder>
+                    <sortorder>11</sortorder>
                     <color>960096</color>
                     <item>
                         <host>Template epmmm Memcached stats</host>
@@ -1246,7 +1267,7 @@ pip3 install py-zabbix</description>
                     </item>
                 </graph_item>
                 <graph_item>
-                    <sortorder>11</sortorder>
+                    <sortorder>12</sortorder>
                     <color>960000</color>
                     <item>
                         <host>Template epmmm Memcached stats</host>
@@ -1254,7 +1275,7 @@ pip3 install py-zabbix</description>
                     </item>
                 </graph_item>
                 <graph_item>
-                    <sortorder>12</sortorder>
+                    <sortorder>13</sortorder>
                     <color>969600</color>
                     <item>
                         <host>Template epmmm Memcached stats</host>
@@ -1264,11 +1285,12 @@ pip3 install py-zabbix</description>
             </graph_items>
         </graph>
         <graph>
-            <name>Memcached 11211: Cmd get/set</name>
+            <name>Memcached : Cmd get/set</name>
             <show_work_period>NO</show_work_period>
             <show_triggers>NO</show_triggers>
             <graph_items>
                 <graph_item>
+                    <sortorder>1</sortorder>
                     <color>009900</color>
                     <calc_fnc>MAX</calc_fnc>
                     <item>
@@ -1277,7 +1299,7 @@ pip3 install py-zabbix</description>
                     </item>
                 </graph_item>
                 <graph_item>
-                    <sortorder>1</sortorder>
+                    <sortorder>2</sortorder>
                     <color>0000DD</color>
                     <calc_fnc>MAX</calc_fnc>
                     <item>
@@ -1286,7 +1308,7 @@ pip3 install py-zabbix</description>
                     </item>
                 </graph_item>
                 <graph_item>
-                    <sortorder>2</sortorder>
+                    <sortorder>3</sortorder>
                     <color>EE0000</color>
                     <yaxisside>RIGHT</yaxisside>
                     <item>
@@ -1297,11 +1319,12 @@ pip3 install py-zabbix</description>
             </graph_items>
         </graph>
         <graph>
-            <name>Memcached 11211: connection info</name>
+            <name>Memcached : connection info</name>
             <show_work_period>NO</show_work_period>
             <show_triggers>NO</show_triggers>
             <graph_items>
                 <graph_item>
+                    <sortorder>1</sortorder>
                     <color>00C800</color>
                     <item>
                         <host>Template epmmm Memcached stats</host>
@@ -1309,7 +1332,7 @@ pip3 install py-zabbix</description>
                     </item>
                 </graph_item>
                 <graph_item>
-                    <sortorder>1</sortorder>
+                    <sortorder>2</sortorder>
                     <color>00C8C8</color>
                     <item>
                         <host>Template epmmm Memcached stats</host>
@@ -1317,7 +1340,7 @@ pip3 install py-zabbix</description>
                     </item>
                 </graph_item>
                 <graph_item>
-                    <sortorder>2</sortorder>
+                    <sortorder>3</sortorder>
                     <color>0000C8</color>
                     <item>
                         <host>Template epmmm Memcached stats</host>
@@ -1325,7 +1348,7 @@ pip3 install py-zabbix</description>
                     </item>
                 </graph_item>
                 <graph_item>
-                    <sortorder>3</sortorder>
+                    <sortorder>4</sortorder>
                     <color>C800C8</color>
                     <item>
                         <host>Template epmmm Memcached stats</host>
@@ -1333,7 +1356,7 @@ pip3 install py-zabbix</description>
                     </item>
                 </graph_item>
                 <graph_item>
-                    <sortorder>4</sortorder>
+                    <sortorder>5</sortorder>
                     <color>C8C800</color>
                     <item>
                         <host>Template epmmm Memcached stats</host>
@@ -1341,7 +1364,7 @@ pip3 install py-zabbix</description>
                     </item>
                 </graph_item>
                 <graph_item>
-                    <sortorder>5</sortorder>
+                    <sortorder>6</sortorder>
                     <color>00C8C8</color>
                     <item>
                         <host>Template epmmm Memcached stats</host>
@@ -1351,9 +1374,10 @@ pip3 install py-zabbix</description>
             </graph_items>
         </graph>
         <graph>
-            <name>Memcached 11211: cpu time info</name>
+            <name>Memcached : cpu time info</name>
             <graph_items>
                 <graph_item>
+                    <sortorder>1</sortorder>
                     <color>00C800</color>
                     <item>
                         <host>Template epmmm Memcached stats</host>
@@ -1361,7 +1385,7 @@ pip3 install py-zabbix</description>
                     </item>
                 </graph_item>
                 <graph_item>
-                    <sortorder>1</sortorder>
+                    <sortorder>2</sortorder>
                     <color>C80000</color>
                     <item>
                         <host>Template epmmm Memcached stats</host>
@@ -1371,9 +1395,10 @@ pip3 install py-zabbix</description>
             </graph_items>
         </graph>
         <graph>
-            <name>Memcached 11211: items info</name>
+            <name>Memcached : items info</name>
             <graph_items>
                 <graph_item>
+                    <sortorder>1</sortorder>
                     <color>FF3333</color>
                     <item>
                         <host>Template epmmm Memcached stats</host>
@@ -1381,7 +1406,7 @@ pip3 install py-zabbix</description>
                     </item>
                 </graph_item>
                 <graph_item>
-                    <sortorder>1</sortorder>
+                    <sortorder>2</sortorder>
                     <color>C800C8</color>
                     <item>
                         <host>Template epmmm Memcached stats</host>
@@ -1389,7 +1414,7 @@ pip3 install py-zabbix</description>
                     </item>
                 </graph_item>
                 <graph_item>
-                    <sortorder>2</sortorder>
+                    <sortorder>3</sortorder>
                     <color>00C8C8</color>
                     <item>
                         <host>Template epmmm Memcached stats</host>
@@ -1399,11 +1424,50 @@ pip3 install py-zabbix</description>
             </graph_items>
         </graph>
         <graph>
-            <name>Memcached 11211: stats</name>
+            <name>Memcached : rep info</name>
+            <graph_items>
+                <graph_item>
+                    <sortorder>1</sortorder>
+                    <color>1A7C11</color>
+                    <yaxisside>RIGHT</yaxisside>
+                    <item>
+                        <host>Template epmmm Memcached stats</host>
+                        <key>memcached_stats[repcached_qi_free]</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>2</sortorder>
+                    <color>F63100</color>
+                    <item>
+                        <host>Template epmmm Memcached stats</host>
+                        <key>memcached_stats[rep_conn_master_number]</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>3</sortorder>
+                    <color>2774A4</color>
+                    <item>
+                        <host>Template epmmm Memcached stats</host>
+                        <key>memcached_stats[rep_conn_slave_number]</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>4</sortorder>
+                    <color>A54F10</color>
+                    <item>
+                        <host>Template epmmm Memcached stats</host>
+                        <key>memcached_stats[rep_slave_address_number]</key>
+                    </item>
+                </graph_item>
+            </graph_items>
+        </graph>
+        <graph>
+            <name>Memcached : stats</name>
             <show_work_period>NO</show_work_period>
             <show_triggers>NO</show_triggers>
             <graph_items>
                 <graph_item>
+                    <sortorder>1</sortorder>
                     <color>009900</color>
                     <yaxisside>RIGHT</yaxisside>
                     <calc_fnc>MAX</calc_fnc>
@@ -1413,7 +1477,7 @@ pip3 install py-zabbix</description>
                     </item>
                 </graph_item>
                 <graph_item>
-                    <sortorder>1</sortorder>
+                    <sortorder>2</sortorder>
                     <color>0000DD</color>
                     <yaxisside>RIGHT</yaxisside>
                     <calc_fnc>MAX</calc_fnc>
@@ -1423,7 +1487,7 @@ pip3 install py-zabbix</description>
                     </item>
                 </graph_item>
                 <graph_item>
-                    <sortorder>2</sortorder>
+                    <sortorder>3</sortorder>
                     <color>FF3333</color>
                     <item>
                         <host>Template epmmm Memcached stats</host>
@@ -1431,7 +1495,7 @@ pip3 install py-zabbix</description>
                     </item>
                 </graph_item>
                 <graph_item>
-                    <sortorder>3</sortorder>
+                    <sortorder>4</sortorder>
                     <color>C800C8</color>
                     <yaxisside>RIGHT</yaxisside>
                     <item>
@@ -1440,7 +1504,7 @@ pip3 install py-zabbix</description>
                     </item>
                 </graph_item>
                 <graph_item>
-                    <sortorder>4</sortorder>
+                    <sortorder>5</sortorder>
                     <color>00C8C8</color>
                     <item>
                         <host>Template epmmm Memcached stats</host>
@@ -1448,7 +1512,7 @@ pip3 install py-zabbix</description>
                     </item>
                 </graph_item>
                 <graph_item>
-                    <sortorder>5</sortorder>
+                    <sortorder>6</sortorder>
                     <color>C8C800</color>
                     <item>
                         <host>Template epmmm Memcached stats</host>
@@ -1456,7 +1520,7 @@ pip3 install py-zabbix</description>
                     </item>
                 </graph_item>
                 <graph_item>
-                    <sortorder>6</sortorder>
+                    <sortorder>7</sortorder>
                     <color>C8C8C8</color>
                     <item>
                         <host>Template epmmm Memcached stats</host>
@@ -1464,14 +1528,14 @@ pip3 install py-zabbix</description>
                     </item>
                 </graph_item>
                 <graph_item>
-                    <sortorder>7</sortorder>
+                    <sortorder>8</sortorder>
                     <item>
                         <host>Template epmmm Memcached stats</host>
                         <key>memcached_stats[get_hits]</key>
                     </item>
                 </graph_item>
                 <graph_item>
-                    <sortorder>8</sortorder>
+                    <sortorder>9</sortorder>
                     <color>960000</color>
                     <item>
                         <host>Template epmmm Memcached stats</host>
@@ -1481,13 +1545,27 @@ pip3 install py-zabbix</description>
             </graph_items>
         </graph>
         <graph>
-            <name>Memcached 11211: total op items</name>
+            <name>Memcached : total op items</name>
             <graph_items>
                 <graph_item>
+                    <sortorder>1</sortorder>
                     <color>C800C8</color>
                     <item>
                         <host>Template epmmm Memcached stats</host>
                         <key>memcached_stats[total_items]</key>
+                    </item>
+                </graph_item>
+            </graph_items>
+        </graph>
+        <graph>
+            <name>Memcached cpu use</name>
+            <graph_items>
+                <graph_item>
+                    <sortorder>1</sortorder>
+                    <color>1A7C11</color>
+                    <item>
+                        <host>Template epmmm Memcached For memcached trapper</host>
+                        <key>get_memcached_stats[{HOST.NAME},{HOST.IP},{$MEMCACHED_PORT},{$ZABBIXTYPE},memcached_cpu_use,{$SERVICEUNIQ}]</key>
                     </item>
                 </graph_item>
             </graph_items>

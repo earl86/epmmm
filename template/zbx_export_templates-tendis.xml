@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>5.0</version>
-    <date>2024-02-06T10:25:54Z</date>
+    <date>2024-02-21T06:34:33Z</date>
     <groups>
         <group>
             <name>Template EPMMM Tendis</name>
@@ -51,7 +51,7 @@ pip3 install py-zabbix</description>
             <items>
                 <item>
                     <name>epmmm Tendis Agent is alive</name>
-                    <key>epmmm.tendis.check[{HOST.NAME},{HOST.IP},{$TENDIS_PORT},check,{$TENDIS_PASSWORD},{$ZABBIXTYPE}]</key>
+                    <key>epmmm.tendis.check[{HOST.NAME},{HOST.IP},{$TENDIS_PORT},check,{$TENDIS_PASSWORD},{$ZABBIXTYPE},{$SERVICEUNIQ}]</key>
                     <delay>5</delay>
                     <history>30d</history>
                     <applications>
@@ -67,6 +67,18 @@ pip3 install py-zabbix</description>
                             <description>epmmm Agent was not reachable. We assume it is down!</description>
                         </trigger>
                     </triggers>
+                </item>
+                <item>
+                    <name>Tendis cpu use</name>
+                    <key>epmmm.tendis.check[{HOST.NAME},{HOST.IP},{$TENDIS_PORT},tendis_cpu_use,{$TENDIS_PASSWORD},{$ZABBIXTYPE},{$SERVICEUNIQ}]</key>
+                    <delay>5</delay>
+                    <history>30d</history>
+                    <value_type>FLOAT</value_type>
+                    <applications>
+                        <application>
+                            <name>epmmm</name>
+                        </application>
+                    </applications>
                 </item>
                 <item>
                     <name>Tendis Server alive</name>
@@ -6349,6 +6361,10 @@ pip3 install py-zabbix</description>
             </tags>
             <macros>
                 <macro>
+                    <macro>{$SERVICEUNIQ}</macro>
+                    <value>tendisplus</value>
+                </macro>
+                <macro>
                     <macro>{$SERVICE_ROLE}</macro>
                 </macro>
                 <macro>
@@ -6745,7 +6761,7 @@ pip3 install py-zabbix</description>
                     <color>009900</color>
                     <item>
                         <host>Template epmmm Tendis</host>
-                        <key>epmmm.tendis.check[{HOST.NAME},{HOST.IP},{$TENDIS_PORT},check,{$TENDIS_PASSWORD},{$ZABBIXTYPE}]</key>
+                        <key>epmmm.tendis.check[{HOST.NAME},{HOST.IP},{$TENDIS_PORT},check,{$TENDIS_PASSWORD},{$ZABBIXTYPE},{$SERVICEUNIQ}]</key>
                     </item>
                 </graph_item>
             </graph_items>
@@ -8107,6 +8123,19 @@ pip3 install py-zabbix</description>
                     <item>
                         <host>Template epmmm Tendis</host>
                         <key>tendis[used_cpu_user_children]</key>
+                    </item>
+                </graph_item>
+            </graph_items>
+        </graph>
+        <graph>
+            <name>Tendis CPU Use</name>
+            <graph_items>
+                <graph_item>
+                    <sortorder>1</sortorder>
+                    <color>1A7C11</color>
+                    <item>
+                        <host>Template epmmm Tendis</host>
+                        <key>epmmm.tendis.check[{HOST.NAME},{HOST.IP},{$TENDIS_PORT},tendis_cpu_use,{$TENDIS_PASSWORD},{$ZABBIXTYPE},{$SERVICEUNIQ}]</key>
                     </item>
                 </graph_item>
             </graph_items>
